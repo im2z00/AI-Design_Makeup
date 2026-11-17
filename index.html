@@ -1597,6 +1597,7 @@ R.looks=()=>{
   const L=S.looks||[],fmt=ts=>{const d=new Date(ts);return `${d.getMonth()+1}월 ${d.getDate()}일`};
   return `<div class="scr home">${statusBar()}
  <div class="body">
+  <div class="home-hd"><div class="brand"><b></b><span class="blind" role="img" aria-label="서비스명 미정"></span></div><button class="iconbtn" data-act="tabMy" aria-label="마이페이지">${ic('user',22)}</button></div>
   <div class="my-hd"><b>내 룩</b><small>활용법을 만들어 본 룩이 자동으로 저장돼요</small></div>
   ${L.length?`<div class="looklist">${L.map(r=>`<div class="lk-card">
     <button class="lk-main" data-act="lookOpen" data-v="${esc(r.id)}"><span class="lk-th">${MOOD_IMG[r.mood]?`<img src="${MOOD_IMG[r.mood]}" alt="">`:''}<i style="background:${r.hex}"></i></span>
@@ -1616,6 +1617,7 @@ R.my=()=>{
   const fr=S.faceTraits&&S.faceTraits.report;
   return `<div class="scr home">${statusBar()}
  <div class="body">
+  <div class="home-hd"><div class="brand"><b></b><span class="blind" role="img" aria-label="서비스명 미정"></span></div><button class="iconbtn" data-act="tabMy" aria-label="마이페이지">${ic('user',22)}</button></div>
   <div class="my-hd"><b>마이페이지</b><small>온보딩에서 알려주신 내용이에요. 눌러서 보고 고칠 수 있어요</small></div>
   <div class="drawers">
   ${drawer('basic','user','기본 정보',S.nick?`${esc(S.nick)} · ${S.age||'-'} · ${S.gender||'-'}`:'미입력',
