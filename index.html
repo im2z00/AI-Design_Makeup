@@ -1023,7 +1023,8 @@ const heroFace=(o={})=>{const id=o.id||'hf',lid=o.lid||'#EBC2B0',lip=o.lip||'#E8
  const lashes=lashXs.map((xx,i)=>{const y=arc(xx),out=(80-xx)/10.5,len=lashLen*(.72+.38*(1-(xx-69.5)/21)),dx=out*1.4-.9,c1x=F(dx*.2),c1y=F(-len*.75),ex=F(dx),ey=F(-len);
    const w=x.lash>=2?.22:.17,sl=(bx,dir)=>`M${F(bx-w)} ${F(y)}Q${F(bx+dir*dx*.2-w*.4)} ${F(y-len*.75)} ${F(bx+dir*dx)} ${F(y-len)}Q${F(bx+dir*dx*.2+w*.4)} ${F(y-len*.75)} ${F(bx+w)} ${F(y)}Z`;
    return `<path d="${sl(xx,1)}${sl(200-xx,-1)}"/>`}).join('');
- const glitPts=[[80,88],[83,89.5],[76.5,86.5],[84.5,86],[79,84.5],[73.5,89],[86.5,90],[81,86.8],[77.8,90.6],[75,84.8],[82.5,83.6],[71.5,87.5]].slice(0,2+x.glit*5);
+ // glitter sits on the lid centre, just above the lash line
+ const glitPts=[[80,90.6],[83.2,91.1],[77,91.2],[81.6,89.5],[78.6,89.8],[85.4,91.8],[75.2,92],[82.8,92.3],[79.6,92.2],[84.2,90.2],[76.4,90.1],[80.8,88.7]].slice(0,x.glit*6);
  const glitter=glitPts.map(([gx,gy],i)=>`<circle cx="${gx}" cy="${gy}" r="${i%3?.28:.45}"/><circle cx="${F(200-gx)}" cy="${gy}" r="${i%3?.28:.45}"/>`).join('');
  const lt=(o.wing&&!o.fx)?'wing':x.liner,th={none:.45,base:.85,thin:1.15,wing:1.5,smudge:1.3}[lt]||.85,wl={none:0,base:1.6,thin:3.4,wing:5.6,smudge:2}[lt]||1.6;
  // left eye lash line runs 90.5→69.5; thin at the inner corner, fuller toward the outer corner, ending in a sharp tip
@@ -1034,7 +1035,8 @@ const heroFace=(o={})=>{const id=o.id||'hf',lid=o.lid||'#EBC2B0',lip=o.lip||'#E8
   <linearGradient id="${id}Lid" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="${lid}" stop-opacity="${x.lidOp}"/><stop offset="1" stop-color="#F2D4C6" stop-opacity="0"/></linearGradient>
   <linearGradient id="${id}Hair" x1="0" y1="0" x2=".6" y2="1"><stop offset="0" stop-color="#6A5246"/><stop offset="1" stop-color="#47352E"/></linearGradient>
   <radialGradient id="${id}Bg" cx="50%" cy="35%" r="70%"><stop offset="0" stop-color="#F8FAFD"/><stop offset="1" stop-color="#E7EEF8"/></radialGradient>
-  <filter id="${id}Bl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter><filter id="${id}Ls" x="-30%" y="-40%" width="160%" height="180%"><feGaussianBlur stdDeviation="2.1"/></filter><filter id="${id}Sf" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.1"/></filter>
+  <filter id="${id}Bl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter><filter id="${id}Ls" x="-30%" y="-40%" width="160%" height="180%"><feGaussianBlur stdDeviation="2.1"/></filter><filter id="${id}Sf" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.1"/></filter><filter id="${id}Gl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".25"/></filter>
+  <linearGradient id="${id}Lc" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="${lid}" stop-opacity="${x.lidOp}"/><stop offset=".55" stop-color="${lid}" stop-opacity="${F(x.lidOp*.55)}"/><stop offset="1" stop-color="${lid}" stop-opacity="0"/></linearGradient>
   <radialGradient id="${id}Bh"><stop offset="0" stop-color="${blush}" stop-opacity="${F(Math.min(.9,x.blushOp*1.7))}"/><stop offset=".55" stop-color="${blush}" stop-opacity="${F(x.blushOp*.9)}"/><stop offset="1" stop-color="${blush}" stop-opacity="0"/></radialGradient>
   <radialGradient id="${id}Hl"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".95"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
   <radialGradient id="${id}Lp" cx="50%" cy="55%" r="60%"><stop offset="0" stop-color="${lip}" stop-opacity="${x.lipOp}"/><stop offset=".75" stop-color="${lip}" stop-opacity="${F(x.lipOp*(x.sharp?1:.8))}"/><stop offset="1" stop-color="${lip}" stop-opacity="${F(x.lipOp*(x.sharp?1:.45))}"/></radialGradient></defs>
@@ -1048,8 +1050,10 @@ const heroFace=(o={})=>{const id=o.id||'hf',lid=o.lid||'#EBC2B0',lip=o.lip||'#E8
  <path d="M100 24c-24 0-45 18-47 55-2 26 2 52 0 81 6-22 8-51 10-73 4-30 17-49 37-55z" fill="url(#${id}Hair)"/>
  <path d="M100 24c24 0 45 18 47 55 2 26-2 52 0 81-6-22-8-51-10-73-4-30-17-49-37-55z" fill="url(#${id}Hair)"/>
  <path d="M62 66c-4 30-4 66-2 92M138 66c4 30 4 66 2 92M83 34c-8 10-12 22-13 36" stroke="#8A6D5E" stroke-width="1.6" fill="none" opacity=".55" stroke-linecap="round"/>
- <g filter="url(#${id}Ls)"><ellipse cx="80" cy="${lidCy}" rx="${lidRx}" ry="${lidRy}" fill="url(#${id}Lid)"/><ellipse cx="120" cy="${lidCy}" rx="${lidRx}" ry="${lidRy}" fill="url(#${id}Lid)"/></g>
- <g fill="${x.glitC}" opacity="${x.glit?.95:.85}">${glitter}</g>
+ ${(()=>{const s=x.lidS,cr=F(83-(s-1)*7),ox=F(67.5-(s-1)*5),lidL=`M90.6 94.2C86.5 ${cr} 75 ${cr} ${ox} ${F(92-(s-1)*3)}L69.5 94.2C74.5 88.4 85.5 88.4 90.5 94Z`,lidR=lidL.replace(/(-?\d+\.?\d*) (-?\d+\.?\d*)/g,(m0,a,b)=>`${F(200-+a)} ${b}`);
+   const outer=`M76 90.6C73 88.6 70 89.4 ${F(67.6-(s-1)*4)} ${F(92.6-(s-1)*2)}L69.5 94.2C71.6 92 73.8 90.9 76 90.6Z`,outerR=outer.replace(/(-?\d+\.?\d*) (-?\d+\.?\d*)/g,(m0,a,b)=>`${F(200-+a)} ${b}`);
+   return `<g filter="url(#${id}Ls)"><path d="${lidL}${lidR}" fill="url(#${id}Lc)"/>${x.lidOp>.7?`<path d="${outer}${outerR}" fill="${lid}" opacity="${F((x.lidOp-.6)*1.2)}"/>`:''}</g>`})()}
+ ${x.glit?`<g fill="${x.glitC}" opacity=".8" filter="url(#${id}Gl)">${glitter}</g>`:''}
  <path d="M67 79c6-2.5 15-3 22-1.2M111 77.8c7-1.8 16-1.3 22 1.2" stroke="#9A7B6B" stroke-width="2.3" fill="none" stroke-linecap="round"/>
  <ellipse cx="80" cy="96.5" rx="9.6" ry="7.6" fill="#FFFFFF"/><ellipse cx="120" cy="96.5" rx="9.6" ry="7.6" fill="#FFFFFF"/>
  <circle cx="80" cy="97" r="6.6" fill="#7A5242"/><circle cx="120" cy="97" r="6.6" fill="#7A5242"/>
@@ -1062,7 +1066,7 @@ const heroFace=(o={})=>{const id=o.id||'hf',lid=o.lid||'#EBC2B0',lip=o.lip||'#E8
  ${o.fx?`<path d="M71.5 101.6c5.5 2.6 12.5 2.6 18 0M110.5 101.6c5.5 2.6 12.5 2.6 18 0" stroke="${x.aegyo||'#EFA3AB'}" stroke-width="1.6" fill="none" opacity=".55" filter="url(#${id}Ls)"/>`:''}
  ${o.fx&&x.lash?`<g stroke="#3A2A26" stroke-width=".26" stroke-linecap="round" opacity=".8">${[80.5,83.5,86.5,89].map(xx=>{const yy=102.2-(xx-80)*.12;return `<path d="M${xx} ${F(yy)}l${F(-(xx-80)*.06)} 2.1M${200-xx} ${F(yy)}l${F((xx-80)*.06)} 2.1"/>`}).join('')}</g>`:''}
  <path d="M72.5 104c4.5 2 10.5 2 15 0M112.5 104c4.5 2 10.5 2 15 0" stroke="${x.aegyo||'#FFF6EF'}" stroke-width="${x.aegyo?3.2:2.4}" fill="none" stroke-linecap="round" opacity=".9" filter="url(#${id}Sf)"/>
- ${x.aegyo?`<g fill="#FFFFFF"><circle cx="76" cy="105.2" r=".6"/><circle cx="82" cy="105.6" r=".5"/><circle cx="118" cy="105.6" r=".5"/><circle cx="124" cy="105.2" r=".6"/></g>`:''}
+ 
  <g filter="url(#${id}Bl)"><ellipse cx="72" cy="${112+x.blushY}" rx="${F(14*x.blushW)}" ry="8.5" fill="url(#${id}Bh)"/><ellipse cx="128" cy="${112+x.blushY}" rx="${F(14*x.blushW)}" ry="8.5" fill="url(#${id}Bh)"/></g>
  <g filter="url(#${id}Sf)" opacity="${F(Math.min(1,x.hl*1.1))}"><ellipse cx="72" cy="108.5" rx="5.5" ry="2.4" fill="url(#${id}Hl)"/><ellipse cx="128" cy="108.5" rx="5.5" ry="2.4" fill="url(#${id}Hl)"/></g>
  ${x.hl>.55?`<g filter="url(#${id}Sf)" opacity="${F(x.hl*.85)}"><ellipse cx="99.4" cy="101" rx="1.2" ry="6" fill="url(#${id}Hl)"/><ellipse cx="100" cy="62" rx="6" ry="3" fill="url(#${id}Hl)"/><ellipse cx="100.5" cy="113.5" rx="2" ry="1.3" fill="url(#${id}Hl)"/></g>`:''}
@@ -1832,8 +1836,6 @@ function photoMakeup(c){
     // lower lash line: pink wash from the inner corner to the outer third
     o+=`<path d="M${f(ix+out*e.rx*.1)} ${f(y+e.ry*.2)}Q${f(e.cx)} ${f(bot+e.ry*.9)} ${f(ox)} ${f(y+e.ry*.1)}" stroke="${x.aegyo||'#E6939C'}" stroke-width="${f(e.ry*.7)}" fill="none" stroke-linecap="round" filter="url(#${id}B1)" style="mix-blend-mode:multiply" opacity="${f(.28+x.lower*.4)}"/>`;
     if(x.lower)o+=`<path d="M${f(e.cx)} ${f(bot)}Q${f(e.cx+out*e.rx*.6)} ${f(bot-e.ry*.1)} ${f(ox)} ${f(y+e.ry*.05)}" stroke="${c.lid}" stroke-width="${f(e.ry*.45)}" fill="none" filter="url(#${id}B1)" style="mix-blend-mode:multiply" opacity="${f(x.lower*.7)}"/>`;
-    // inner-corner light
-    o+=`<ellipse cx="${f(ix+out*e.rx*.08)}" cy="${f(y+e.ry*.1)}" rx="${f(e.rx*.12)}" ry="${f(e.ry*.22)}" fill="#FFF7F2" opacity=".55" filter="url(#${id}B0)"/>`;
     // liner: follows the outer 70% of the lash line, then a thin lifted wing
     if(x.liner!=='none'){
       const pts=[.3,.45,.6,.75,.9,1].map(upper),wingLen=x.liner==='wing'?e.rx*.55:x.liner==='thin'?e.rx*.32:e.rx*.18,wy=e.ry*(x.liner==='wing'?.7:.45);
