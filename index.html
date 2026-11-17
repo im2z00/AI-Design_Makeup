@@ -533,6 +533,8 @@ h1.title{margin:0;font-size:24px;line-height:1.36;font-weight:800;letter-spacing
 .cmpgrid .cr.gone{opacity:.5;text-decoration:line-through}
 .dir .dwhy{font-size:11.5px;line-height:1.45;color:var(--ink-2);background:var(--sand);border-radius:8px;padding:5px 7px}
 .dir .dwhy i{font-style:normal;font-weight:800;color:var(--rose-deep);margin-right:3px}
+.fxtags{display:flex;flex-wrap:wrap;gap:3px}
+.fxtags i{font-style:normal;font-size:10.5px;font-weight:800;color:var(--rose-deep);background:var(--rose-tint);border-radius:6px;padding:1px 5px}
 .dmeta{display:flex;flex-wrap:wrap;gap:3px}
 .dmeta i{font-style:normal;font-size:10.5px;font-weight:700;color:var(--ink-2);border:1px solid var(--line);border-radius:6px;padding:1px 5px}
 .dirfb{background:var(--card);border:1.5px solid var(--rose);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
@@ -979,36 +981,57 @@ function face({bg,hair='#3A2A24',long=1,shadow='#B98A7A',blush='#EFB2A4',lip='#D
 const moodFace=m=>face({bg:[m.bg[0],m.bg[0]],hair:m.hair,long:m.long,lip:m.sw[0],blush:m.sw[1],shadow:m.sw[2]});
 const demoFace=(cls='face')=>face({bg:['#EEE5DF','#DCCFC6'],hair:'#2E211D',long:1,lip:'#D38C82',blush:'#F0C2B6',shadow:'#E4CFC4',cls});
 // Welcome STEP 2: clean-girl look — bright skin, soft brown hair, sheer peach lid, tightline, peach blush, glossy MLBB lip.
-const heroFace=(o={})=>{const id=o.id||'hf',lid=o.lid||'#EBC2B0',lip=o.lip||'#E8999A',blush=o.blush||'#F5A79E';
+// o.fx changes how the makeup is worn (see MOOD_FX); without it the face looks as before.
+const FX0={lidS:1,lidOp:.9,lash:0,liner:'base',glit:0,glitC:'#FFFFFF',aegyo:null,hl:.5,contour:0,blushOp:.34,blushY:0,blushW:1,gloss:1,lipOp:1,lower:0,sharp:0};
+const heroFace=(o={})=>{const id=o.id||'hf',lid=o.lid||'#EBC2B0',lip=o.lip||'#E8999A',blush=o.blush||'#F5A79E',x={...FX0,...(o.fx||{})},F=n=>(+n).toFixed(1);
+ // eyelid shape follows the lash line of each eye: left eye 69.5–90.5, right eye mirrored around x=100
+ // a bigger lid area spreads sideways and a little upward, never over the brows
+ const lidCy=F(90.5-Math.max(0,x.lidS-1)*2.5),lidRx=F(14*Math.min(x.lidS,1.25)),lidRy=F(8.5*Math.min(x.lidS,1.15));
+ const arc=xx=>94-5.6*Math.sin(Math.PI*(xx-69.5)/21);
+ const lashXs=x.lash>=2?[71,73.3,75.6,78,80.4,82.8,85.2,87.6,89.6]:x.lash>=1?[73,77,81,85,88.5]:[];
+ const lashLen=x.lash>=2?4.4:2.6;
+ // lashes curl outward and up, longer toward the outer corner
+ const lashes=lashXs.map((xx,i)=>{const y=arc(xx),out=(80-xx)/10.5,len=lashLen*(.72+.38*(1-(xx-69.5)/21)),dx=out*1.4-.9,c1x=F(dx*.2),c1y=F(-len*.75),ex=F(dx),ey=F(-len);
+   return `<path d="M${F(xx)} ${F(y)}q${c1x} ${c1y} ${ex} ${ey}M${F(200-xx)} ${F(y)}q${F(-dx*.2)} ${c1y} ${F(-dx)} ${ey}"/>`}).join('');
+ const glitPts=[[80,88],[83,89.5],[76.5,86.5],[84.5,86],[79,84.5],[73.5,89],[86.5,90],[81,86.8],[77.8,90.6],[75,84.8],[82.5,83.6],[71.5,87.5]].slice(0,2+x.glit*5);
+ const glitter=glitPts.map(([gx,gy],i)=>`<circle cx="${gx}" cy="${gy}" r="${i%3?.55:.9}"/><circle cx="${F(200-gx)}" cy="${gy}" r="${i%3?.55:.9}"/>`).join('');
+ const liner=x.liner==='base'||x.liner==='none'?(x.liner==='none'?.9:1.7):x.liner==='thin'?2.2:x.liner==='wing'?2.4:2;
  return `<svg viewBox="0 0 200 200" role="img" aria-label="맑은 메이크업을 한 얼굴 일러스트">
  <defs><radialGradient id="${id}Skin" cx="50%" cy="40%" r="65%"><stop offset="0" stop-color="#FCEBDF"/><stop offset="1" stop-color="#F1D3C1"/></radialGradient>
-  <linearGradient id="${id}Lid" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="${lid}" stop-opacity=".9"/><stop offset="1" stop-color="#F2D4C6" stop-opacity="0"/></linearGradient>
+  <linearGradient id="${id}Lid" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="${lid}" stop-opacity="${x.lidOp}"/><stop offset="1" stop-color="#F2D4C6" stop-opacity="0"/></linearGradient>
   <linearGradient id="${id}Hair" x1="0" y1="0" x2=".6" y2="1"><stop offset="0" stop-color="#6A5246"/><stop offset="1" stop-color="#47352E"/></linearGradient>
-  <radialGradient id="${id}Bg" cx="50%" cy="35%" r="70%"><stop offset="0" stop-color="#F8FAFD"/><stop offset="1" stop-color="#E7EEF8"/></radialGradient></defs>
+  <radialGradient id="${id}Bg" cx="50%" cy="35%" r="70%"><stop offset="0" stop-color="#F8FAFD"/><stop offset="1" stop-color="#E7EEF8"/></radialGradient>
+  <filter id="${id}Bl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter><filter id="${id}Ls" x="-30%" y="-40%" width="160%" height="180%"><feGaussianBlur stdDeviation="1.4"/></filter></defs>
  <rect width="200" height="200" fill="url(#${id}Bg)"/>
  <path d="M46 92C42 42 70 20 100 20s58 22 54 72c-2 40 8 80 14 108H32c6-28 16-68 14-108z" fill="url(#${id}Hair)"/>
  <path d="M38 200c4-25 26-37 62-37s58 12 62 37z" fill="#F5F0E9"/>
  <path d="M80 165c6 8 13 12 20 12s14-4 20-12" fill="none" stroke="#E6DED3" stroke-width="3" stroke-linecap="round"/>
  <path d="M87 138h26v25c-8 6-18 6-26 0z" fill="#EDCAB6"/>
  <path d="M59 92c0-34 18-53 41-53s41 19 41 53c0 33-18 57-41 57S59 125 59 92z" fill="url(#${id}Skin)"/>
+ ${x.contour?`<g filter="url(#${id}Bl)" fill="none" stroke="#A97B63" stroke-linecap="round" opacity="${F(x.contour*.8)}"><path d="M62 98c1 15 6 27 15 37M138 98c-1 15-6 27-15 37" stroke-width="6"/><path d="M95.5 92v17M104.5 92v17" stroke-width="2.6"/></g>`:''}
  <path d="M100 24c-24 0-45 18-47 55-2 26 2 52 0 81 6-22 8-51 10-73 4-30 17-49 37-55z" fill="url(#${id}Hair)"/>
  <path d="M100 24c24 0 45 18 47 55 2 26-2 52 0 81-6-22-8-51-10-73-4-30-17-49-37-55z" fill="url(#${id}Hair)"/>
  <path d="M62 66c-4 30-4 66-2 92M138 66c4 30 4 66 2 92M83 34c-8 10-12 22-13 36" stroke="#8A6D5E" stroke-width="1.6" fill="none" opacity=".55" stroke-linecap="round"/>
- <ellipse cx="80" cy="90.5" rx="14" ry="8.5" fill="url(#${id}Lid)"/><ellipse cx="120" cy="90.5" rx="14" ry="8.5" fill="url(#${id}Lid)"/>
- <g fill="#FFFFFF" opacity=".85"><circle cx="80" cy="88" r=".9"/><circle cx="83" cy="89.5" r=".6"/><circle cx="120" cy="88" r=".9"/><circle cx="117" cy="89.5" r=".6"/></g>
+ <g filter="url(#${id}Ls)"><ellipse cx="80" cy="${lidCy}" rx="${lidRx}" ry="${lidRy}" fill="url(#${id}Lid)"/><ellipse cx="120" cy="${lidCy}" rx="${lidRx}" ry="${lidRy}" fill="url(#${id}Lid)"/></g>
+ <g fill="${x.glitC}" opacity="${x.glit?.95:.85}">${glitter}</g>
  <path d="M67 79c6-2.5 15-3 22-1.2M111 77.8c7-1.8 16-1.3 22 1.2" stroke="#9A7B6B" stroke-width="2.3" fill="none" stroke-linecap="round"/>
  <ellipse cx="80" cy="96.5" rx="9.6" ry="7.6" fill="#FFFFFF"/><ellipse cx="120" cy="96.5" rx="9.6" ry="7.6" fill="#FFFFFF"/>
  <circle cx="80" cy="97" r="6.6" fill="#7A5242"/><circle cx="120" cy="97" r="6.6" fill="#7A5242"/>
  <circle cx="80" cy="97.4" r="3" fill="#3A2420"/><circle cx="120" cy="97.4" r="3" fill="#3A2420"/>
  <circle cx="82.4" cy="94.8" r="1.9" fill="#FFFFFF"/><circle cx="122.4" cy="94.8" r="1.9" fill="#FFFFFF"/><circle cx="78" cy="99.5" r=".8" fill="#FFFFFF" opacity=".8"/><circle cx="118" cy="99.5" r=".8" fill="#FFFFFF" opacity=".8"/>
- <path d="M90.5 94c-5-5.6-16-5.6-21 .2M109.5 94c5-5.6 16-5.6 21 .2" stroke="#4A332C" stroke-width="1.7" fill="none" stroke-linecap="round"/>
- <path d="M72.5 104c4.5 2 10.5 2 15 0M112.5 104c4.5 2 10.5 2 15 0" stroke="#FFF6EF" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".9"/>
- <ellipse cx="71" cy="113" rx="11" ry="6.5" fill="${blush}" opacity=".34"/><ellipse cx="129" cy="113" rx="11" ry="6.5" fill="${blush}" opacity=".34"/>
- <ellipse cx="73" cy="109" rx="4" ry="1.6" fill="#FFFFFF" opacity=".45"/><ellipse cx="127" cy="109" rx="4" ry="1.6" fill="#FFFFFF" opacity=".45"/>
+ ${x.liner==='smudge'?`<path d="M90.5 94.5c-5-5.6-16-5.6-21 .2M109.5 94.5c5-5.6 16-5.6 21 .2" stroke="${lid}" stroke-width="4.5" fill="none" opacity=".55" filter="url(#${id}Bl)"/>`:''}
+ <path d="M90.5 94c-5-5.6-16-5.6-21 .2M109.5 94c5-5.6 16-5.6 21 .2" stroke="#4A332C" stroke-width="${liner}" fill="none" stroke-linecap="round"/>
+ ${lashes?`<g stroke="#2E211D" stroke-width="${x.lash>=2?.75:.6}" stroke-linecap="round" fill="none">${lashes}</g>`:''}
+ ${x.lower?`<path d="M71 102.5c5 3 13 3 18 0M111 102.5c5 3 13 3 18 0" stroke="${lid}" stroke-width="3.2" fill="none" opacity="${F(x.lower)}" filter="url(#${id}Bl)"/>`:''}
+ <path d="M72.5 104c4.5 2 10.5 2 15 0M112.5 104c4.5 2 10.5 2 15 0" stroke="${x.aegyo||'#FFF6EF'}" stroke-width="${x.aegyo?2.8:2.2}" fill="none" stroke-linecap="round" opacity=".9"/>
+ ${x.aegyo?`<g fill="#FFFFFF"><circle cx="76" cy="105.2" r=".6"/><circle cx="82" cy="105.6" r=".5"/><circle cx="118" cy="105.6" r=".5"/><circle cx="124" cy="105.2" r=".6"/></g>`:''}
+ <ellipse cx="71" cy="${113+x.blushY}" rx="${F(11*x.blushW)}" ry="6.5" fill="${blush}" opacity="${x.blushOp}"/><ellipse cx="129" cy="${113+x.blushY}" rx="${F(11*x.blushW)}" ry="6.5" fill="${blush}" opacity="${x.blushOp}"/>
+ <ellipse cx="73" cy="109" rx="4" ry="1.6" fill="#FFFFFF" opacity="${F(x.hl*.9)}"/><ellipse cx="127" cy="109" rx="4" ry="1.6" fill="#FFFFFF" opacity="${F(x.hl*.9)}"/>
+ ${x.hl>.55?`<g fill="#FFFFFF" opacity="${F(x.hl*.7)}"><path d="M99.2 96v11" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="100" cy="62" rx="5" ry="2.2"/><ellipse cx="100" cy="136.5" rx="2.2" ry=".9"/></g>`:''}
  <path d="M99.5 104c-.8 5.5-1.6 8.5.2 10.4 1.6.8 3.4.2 4.3-.8" stroke="#DDB09A" stroke-width="1.4" fill="none" stroke-linecap="round"/>
- <path d="M89 126c4-2.6 7.6-2.6 11-.9 3.4-1.7 7-1.7 11 .9-3 5.4-6.6 8-11 8s-8-2.6-11-8z" fill="${lip}"/>
+ <path d="M89 126c4-2.6 7.6-2.6 11-.9 3.4-1.7 7-1.7 11 .9-3 5.4-6.6 8-11 8s-8-2.6-11-8z" fill="${lip}" fill-opacity="${x.lipOp}"${x.sharp?` stroke="${lip}" stroke-width="1.2"`:''}/>
  <path d="M89 126c6 1.8 16 1.8 22 0" stroke="${lip}" stroke-width=".9" stroke-opacity=".9" filter="brightness(.85)" fill="none"/>
- <ellipse cx="103.5" cy="130.4" rx="3.6" ry="1.3" fill="#FFFFFF" opacity=".7"/>${o.wing?'<path d="M69.5 94.2l-4.6-2.4M130.5 94.2l4.6-2.4" stroke="#3A2420" stroke-width="2" stroke-linecap="round"/>':''}</svg>`};
+ ${x.gloss>.25?`<ellipse cx="103.5" cy="130.4" rx="3.6" ry="1.3" fill="#FFFFFF" opacity="${F(.7*x.gloss)}"/>`:''}${x.gloss>.7?`<ellipse cx="96" cy="131" rx="2.2" ry=".8" fill="#FFFFFF" opacity="${F(.6*x.gloss)}"/><ellipse cx="97" cy="127.2" rx="1.6" ry=".6" fill="#FFFFFF" opacity=".55"/>`:''}${o.wing||x.liner==='wing'?'<path d="M69.5 94.2l-4.6-2.4M130.5 94.2l4.6-2.4" stroke="#3A2420" stroke-width="2" stroke-linecap="round"/>':''}</svg>`};
 
 /* ================= concern extraction (keyword stand-in for the AI) ================= */
 // Each rule: a pattern found in one clause → a short concern label. area null = use the clause's own area.
@@ -1705,6 +1728,24 @@ const MOOD_LOOK={
  redlip:{name:'깔끔 레드 포인트',desc:'무채색 베이스에 레드 원포인트',eye:', 컬러는 최소로',other:' + 립 라인 또렷하게',tone:'기본'},
  glam:{name:'건강 글램',desc:'샴페인 골드 광 + 테라코타',eye:' + 눈 앞머리 골드 하이라이트',other:' + 광대 위 골드 광',tone:'진하게'},
 };
+// How each mood is drawn: lid size/strength, lashes, liner, glitter, aegyo-sal colour, highlighter, shading, blush, lip finish.
+const MOOD_FX={
+ natural:{lidS:.85,lidOp:.5,lash:0,liner:'none',glit:0,hl:.25,contour:0,blushOp:.2,gloss:.35,lipOp:.7,tags:['얇은 베이스','음영 최소','투명 립']},
+ idol:{lidS:1.12,lidOp:.95,lash:2,liner:'thin',glit:2,aegyo:'#F6B8C6',hl:.85,contour:.35,blushOp:.5,blushY:-1,gloss:1,lipOp:1,tags:['속눈썹 쫑쫑','글리터 섀도우','애교살 컬러','하이라이터·셰딩','윤광 립']},
+ mute:{lidS:1.35,lidOp:.85,lash:1,liner:'thin',glit:0,hl:.15,contour:.25,blushOp:.18,gloss:.1,lipOp:.85,lower:.35,tags:['넓은 토프 음영','언더 음영','매트 립']},
+ juicy:{lidS:1,lidOp:.75,lash:1,liner:'none',glit:1,aegyo:'#FFE0D2',hl:.65,contour:0,blushOp:.52,blushY:-2,gloss:.95,lipOp:.9,tags:['중앙 글리터','과즙 블러셔','촉촉 그라데이션 립']},
+ mauve:{lidS:1.25,lidOp:.8,lash:1,liner:'none',glit:1,glitC:'#EADCF7',aegyo:'#D9C6EC',hl:.4,contour:.1,blushOp:.36,blushW:1.3,gloss:.4,lipOp:.8,tags:['모브 블러 음영','눈 밑 오팔 펄','블러 립']},
+ neat:{lidS:.95,lidOp:.6,lash:1,liner:'thin',glit:0,hl:.25,contour:.15,blushOp:.18,gloss:.3,lipOp:.85,tags:['브라운 라인','단정한 음영','세미 매트 립']},
+ lash:{lidS:1.3,lidOp:.95,lash:2,liner:'wing',glit:0,hl:.3,contour:.45,blushOp:.06,gloss:.15,lipOp:.6,lower:.5,tags:['딥 차콜 삼각존','풍성 속눈썹','윙 라인','누드 립']},
+ smoky:{lidS:1.45,lidOp:.9,lash:1,liner:'smudge',glit:0,hl:.2,contour:.35,blushOp:.1,gloss:.2,lipOp:.65,lower:.7,tags:['번지는 그레이 음영','언더 스모키','누디 립']},
+ redlip:{lidS:.8,lidOp:.4,lash:1,liner:'thin',glit:0,hl:.3,contour:.1,blushOp:.06,gloss:.15,lipOp:1,sharp:1,tags:['무채색 눈','또렷한 레드 립 라인','블러셔 생략']},
+ glam:{lidS:1.2,lidOp:.9,lash:2,liner:'wing',glit:2,glitC:'#F2D58A',aegyo:'#F3DDAF',hl:1,contour:.5,blushOp:.4,gloss:.75,lipOp:.95,tags:['골드 광 섀도우','강한 하이라이터','셰딩','테라코타 립']},
+};
+// "+" variants: the same mood worn stronger or lighter
+function moodFx(v){const id=String(v||'').replace('+',''),b=MOOD_FX[id]||MOOD_FX.natural;if(!String(v).endsWith('+'))return b;
+  const up=plusTone(v)==='진하게',m=up?1.25:.7;
+  return{...b,lidOp:Math.min(1,b.lidOp*m),lash:Math.max(0,Math.min(2,b.lash+(up?1:-1))),glit:Math.max(0,Math.min(2,(b.glit||0)+(up?1:-1))),blushOp:Math.min(.6,(b.blushOp||.3)*m),contour:Math.min(.6,(b.contour||0)*m),lower:(b.lower||0)*m,
+    tags:[up?'더 진하게':'더 가볍게',...b.tags.slice(0,3)]}}
 const lookOf=v=>MOOD_LOOK[String(v||'').replace('+','')]||MOOD_LOOK.natural;
 // The `+` variant flips intensity: stronger for soft moods, lighter for moods that are already strong.
 const plusTone=v=>lookOf(v).tone==='진하게'?'은은하게':'진하게';
@@ -1739,21 +1780,30 @@ function dirKind(text){
 function applyDirFb(label,kind){const k=S.core;k.dirs=fbDirs(kind);k.dirFb=label;k.dirOpen=false;k.ready=false;k.variant=null;k.regen++;render();later(()=>{k.ready=true;render()},1400)}
 // Makeup drawn over the S4 photo: blurred, multiplied colour on lids, cheeks and lips.
 function photoMakeup(c){
-  const m=mapLm(S.faceLm,S.photoDims||{w:1,h:1}),f=n=>n.toFixed(1),L=m.leftEye,R=m.rightEye,P=m.lips;
-  const cheekY=(L.cy+P.cy)/2+1.5;
-  const lid=e=>`<ellipse cx="${f(e.cx)}" cy="${f(e.cy-e.ry*1.1)}" rx="${f(e.rx*1.25)}" ry="${f(e.ry*1.5)}"/>`;
-  const cheek=(e,dx)=>`<ellipse cx="${f(e.cx+dx)}" cy="${f(cheekY)}" rx="${f(e.rx*1.15)}" ry="${f(e.ry*1.7)}"/>`;
+  const m=mapLm(S.faceLm,S.photoDims||{w:1,h:1}),f=n=>n.toFixed(1),L=m.leftEye,R=m.rightEye,P=m.lips,N=m.nose,Fc=m.face,x={...FX0,...(c.fx||{})};
+  const cheekY=(L.cy+P.cy)/2+1.5+x.blushY*.3;
+  const lid=e=>`<ellipse cx="${f(e.cx)}" cy="${f(e.cy-e.ry*1.1*x.lidS)}" rx="${f(e.rx*1.25*x.lidS)}" ry="${f(e.ry*1.5*x.lidS)}"/>`;
+  const under=e=>`<ellipse cx="${f(e.cx)}" cy="${f(e.cy+e.ry*1.05)}" rx="${f(e.rx*.95)}" ry="${f(e.ry*.45)}"/>`;
+  const cheek=(e,dx)=>`<ellipse cx="${f(e.cx+dx)}" cy="${f(cheekY)}" rx="${f(e.rx*1.15*x.blushW)}" ry="${f(e.ry*1.7)}"/>`;
+  const sparks=e=>Array.from({length:2+x.glit*5},(_,i)=>`<circle cx="${f(e.cx+(((i*37)%11)/11-.5)*e.rx*1.6)}" cy="${f(e.cy-e.ry*(1.2+((i*53)%7)/7*.9))}" r="${f(e.rx*.05)}"/>`).join('');
   return `<span class="mk-photo"><img src="${S.photo}" alt=""><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
    <defs><filter id="mkBlur${c.id}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${f(Math.max(.8,L.rx*.18))}"/></filter></defs>
    <g filter="url(#mkBlur${c.id})" style="mix-blend-mode:multiply">
-    <g fill="${c.lid}" opacity="${c.strong?.6:.45}">${lid(L)}${lid(R)}</g>
-    <g fill="${c.blush}" opacity=".32">${cheek(L,-L.rx*.35)}${cheek(R,R.rx*.35)}</g>
-    <ellipse cx="${f(P.cx)}" cy="${f(P.cy)}" rx="${f(P.rx*.95)}" ry="${f(P.ry*.9)}" fill="${c.lip}" opacity="${c.strong?.62:.5}"/></g></svg></span>`;
+    ${x.contour?`<g fill="#9C7360" opacity="${f(x.contour*.5)}"><ellipse cx="${f(Fc.cx-Fc.rx*.92)}" cy="${f(P.cy-Fc.ry*.05)}" rx="${f(Fc.rx*.14)}" ry="${f(Fc.ry*.32)}"/><ellipse cx="${f(Fc.cx+Fc.rx*.92)}" cy="${f(P.cy-Fc.ry*.05)}" rx="${f(Fc.rx*.14)}" ry="${f(Fc.ry*.32)}"/></g>`:''}
+    <g fill="${c.lid}" opacity="${f(x.lidOp*.66)}">${lid(L)}${lid(R)}</g>
+    ${x.lower?`<g fill="${c.lid}" opacity="${f(x.lower*.6)}">${under(L)}${under(R)}</g>`:''}
+    <g fill="${c.blush}" opacity="${f(x.blushOp*.95)}">${cheek(L,-L.rx*.35)}${cheek(R,R.rx*.35)}</g>
+    <ellipse cx="${f(P.cx)}" cy="${f(P.cy)}" rx="${f(P.rx*.95)}" ry="${f(P.ry*.9)}" fill="${c.lip}" opacity="${f(.58*x.lipOp)}"/></g>
+   <g style="mix-blend-mode:screen" fill="#FFFFFF">
+    ${x.aegyo?`<g fill="${x.aegyo}" opacity=".55" filter="url(#mkBlur${c.id})">${under(L)}${under(R)}</g>`:''}
+    ${x.hl>.3?`<g opacity="${f(x.hl*.45)}" filter="url(#mkBlur${c.id})"><ellipse cx="${f(L.cx-L.rx*.2)}" cy="${f(L.cy+L.ry*3.2)}" rx="${f(L.rx*.6)}" ry="${f(L.ry*.6)}"/><ellipse cx="${f(R.cx+R.rx*.2)}" cy="${f(R.cy+R.ry*3.2)}" rx="${f(R.rx*.6)}" ry="${f(R.ry*.6)}"/><ellipse cx="${f(N.cx)}" cy="${f(N.cy-N.ry*.2)}" rx="${f(N.rx*.25)}" ry="${f(N.ry*.6)}"/></g>`:''}
+    ${x.glit?`<g fill="${x.glitC}" opacity=".9">${sparks(L)}${sparks(R)}</g>`:''}
+    ${x.gloss>.6?`<ellipse cx="${f(P.cx+P.rx*.25)}" cy="${f(P.cy+P.ry*.25)}" rx="${f(P.rx*.25)}" ry="${f(P.ry*.18)}" opacity="${f(x.gloss*.6)}"/>`:''}</g></svg></span>`;
 }
 const ownPhoto=()=>S.photoState==='done'&&S.photo&&S.photo!=='demo'&&S.faceLm;
 R.c3=()=>{const k=S.core,c=coreColor()[1],deep=deepen(c);
  const f=v=>{const m=MOODS.find(x=>x.id===v.replace('+',''))||MOODS[0],col=v.endsWith('+')?deep:c,strong=v.endsWith('+')?plusTone(v)==='진하게':lookOf(v).tone==='진하게';
-   const mk={id:v.replace('+','p'),lid:k.cat==='아이'?col:m.sw[2],lip:k.cat==='립'?col:m.sw[0],blush:k.cat==='치크'?col:m.sw[1],strong,wing:strong};
+   const mk={id:v.replace('+','p'),lid:k.cat==='아이'?col:m.sw[2],lip:k.cat==='립'?col:m.sw[0],blush:k.cat==='치크'?col:m.sw[1],strong,wing:false,fx:moodFx(v)};
    if(ownPhoto())return photoMakeup(mk);
    return heroFace(mk);
  };
@@ -1764,6 +1814,7 @@ R.c3=()=>{const k=S.core,c=coreColor()[1],deep=deepen(c);
   ${aiNote('선호 비교',k.dirFb?`‘${esc(k.dirFb)}’ 의견을 반영해 새로 두 가지 방향을 만들었어요.${ownPhoto()?' 올려주신 얼굴 사진에 입혀봤어요.':''}`:`설정에서 고른 추구미 ${S.moods.map(id=>lookTag(id)).join(' ')} 기준으로 같은 제품을 두 가지 방향으로 만들었어요.${ownPhoto()?' 올려주신 얼굴 사진에 입혀봤어요.':''} 더 끌리는 쪽으로 자세히 보여드릴게요.`)}
   <h1 class="title">어느 쪽이 더 끌리세요?</h1>
   <div class="dirs">${dirs.map((v,i)=>`<button class="dir" data-act="cVar" data-v="${v}" aria-pressed="${k.variant===v}"><span class="fv">${f(v)}${ownPhoto()?'<em class="fv-tag">내 사진</em>':''}</span><span class="ck">${ic('check',13,2.6)}</span><b>${'AB'[i]}. ${lookName(v)}</b><small>${lookTag(v)} · ${v.endsWith('+')?(plusTone(v)==='진하게'?'두 겹으로 더 또렷하게':'한 겹으로 가볍게'):lookOf(v).desc}</small>
+    <span class="fxtags">${moodFx(v).tags.map(x=>`<i>${x}</i>`).join('')}</span>
     <span class="dmeta">${(m=>`<i>난이도 ${'●'.repeat(m.lv)}${'○'.repeat(3-m.lv)}</i><i>약 ${m.min}분</i><i>${m.tone}</i>`)(dirMeta(v))}</span>
     <span class="dwhy"><i>왜?</i>${esc(dirWhy(v))}</span></button>`).join('')}</div>
   ${k.dirOpen?`<div class="dirfb"><b>어떤 점이 아쉬웠나요?</b><div class="chips">${[['light','더 연하게'],['strong','더 진하게'],['other','다른 분위기로']].map(([v,l])=>`<button class="chip" data-act="cDirFb" data-v="${v}">${l}</button>`).join('')}</div>
