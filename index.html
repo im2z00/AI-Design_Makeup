@@ -347,6 +347,36 @@ h1.title{margin:0;font-size:24px;line-height:1.36;font-weight:800;letter-spacing
 .swc{display:inline-flex;align-items:center;gap:7px}
 .note.srcs{text-align:left;line-height:1.6}
 .note.srcs a{color:var(--rose-deep);text-decoration:underline;text-underline-offset:2px}
+.drawers{display:flex;flex-direction:column;gap:8px}
+.dr{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:border-color .15s}
+.dr.open{border-color:var(--rose)}
+.dr-h{width:100%;display:flex;align-items:center;gap:10px;padding:12px;text-align:left;cursor:pointer}
+.dr-h:hover{background:var(--rose-soft)}
+.dr-ic{flex:none;width:34px;height:34px;border-radius:10px;background:var(--rose-tint);color:var(--rose-deep);display:grid;place-items:center}
+.dr-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.dr-t b{font-size:14.5px;font-weight:800}
+.dr-t small{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dr-h>.ic:last-child{flex:none;color:var(--ink-3);transition:transform .2s}
+.dr.open .dr-h>.ic:last-child{transform:rotate(180deg);color:var(--rose-deep)}
+.dr-b{padding:2px 12px 12px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:10px}
+.dr-dl{display:grid;grid-template-columns:76px 1fr;gap:6px 8px;margin:0;font-size:13px}
+.dr-dl dt{color:var(--ink-3);font-weight:700}
+.dr-dl dd{margin:0;color:var(--ink);font-weight:600}
+.dr-moods{display:flex;flex-direction:column;gap:6px}
+.dr-moods span{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700}
+.dr-moods em{font-style:normal;font-size:10.5px;font-weight:800;color:var(--rose-deep);background:var(--rose-tint);border-radius:6px;padding:1px 6px}
+.dr-moods i{display:inline-flex;margin-left:auto}
+.dr-moods i b{width:12px;height:12px;border-radius:50%;margin-left:-3px;box-shadow:0 0 0 1.5px #fff}
+.dr-p{margin:0;font-size:13px;line-height:1.5;color:var(--ink-2)}
+.dr-ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--ink)}
+.dr-ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.dr-ul li{font-size:13px;display:flex;gap:6px;align-items:center}
+.dr-ul em{font-style:normal;font-size:10.5px;font-weight:800;color:var(--ink-2);background:var(--sand);border-radius:6px;padding:1px 6px}
+.dr-none{font-size:12.5px;color:var(--ink-3)}
+.dr-edit{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;color:var(--rose-deep);background:var(--rose-tint);border-radius:10px;padding:7px 11px;cursor:pointer;transition:background .15s}
+.dr-edit:hover{background:var(--rose-soft)}
+.dr-add{align-self:flex-start;display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700;color:var(--ink-2);border:1.5px dashed var(--line);border-radius:10px;padding:6px 10px}
+.dr .own-cat{border:0;padding:0;background:none}
 .my-hd{display:flex;flex-direction:column;gap:2px;padding-top:4px}
 .my-hd b{font-size:22px;font-weight:800;letter-spacing:-.02em}
 .my-hd small{font-size:12.5px;color:var(--ink-3)}
@@ -1575,17 +1605,36 @@ R.looks=()=>{
    :`<div class="lk-empty">${ic('look',28)}<b>아직 저장된 룩이 없어요</b><small>관심 제품을 검색해서 활용법을 만들면 여기에 모여요</small><button class="sbtn" data-act="tabHome">제품 검색하러 가기</button></div>`}
  </div>
  ${tabbar('looks')}</div>`};
+// My page: what the user told us in onboarding, one drawer per category; each opens to show it and links to its edit screen.
 R.my=()=>{
   const all=ownedAll(),by=OWN_CATS.map(c=>[c,all.filter(x=>catOfType(x.type)===c)]).filter(([,l])=>l.length);
+  const open=S.myOpen||'',c=S.concerns||[],moods=S.moods.map(id=>MOODS.find(m=>m.id===id)).filter(Boolean);
+  const none=t=>`<span class="dr-none">${t}</span>`;
+  const drawer=(id,icon,title,summary,body,edit,editLabel='수정하기')=>`<section class="dr ${open===id?'open':''}">
+    <button class="dr-h" data-act="myToggle" data-v="${id}" aria-expanded="${open===id}"><span class="dr-ic">${ic(icon,18)}</span><span class="dr-t"><b>${title}</b><small>${summary}</small></span>${ic('chevD',16,2)}</button>
+    ${open===id?`<div class="dr-b">${body}${edit?`<button class="dr-edit" data-act="myEdit" data-v="${edit}">${ic('pencil',14)}${editLabel}</button>`:''}</div>`:''}</section>`;
+  const fr=S.faceTraits&&S.faceTraits.report;
   return `<div class="scr home">${statusBar()}
  <div class="body">
-  <div class="my-hd"><b>마이페이지</b><small>${esc(S.nick||'회원')}님 · ${S.moods.map(id=>'#'+MOODS.find(m=>m.id===id).tag).join(' ')}${S.pc&&S.pc!=='unknown'?' · '+pcLabel():''}</small></div>
-  <div class="own-h"><b>보유 제품 <em>${all.length}</em></b><small>화장대 사진과 룩 만들 때 알려주신 제품을 모았어요</small></div>
-  ${by.length?by.map(([c,l])=>`<div class="own-cat"><h4>${c}<span>${l.length}</span></h4>${l.map(x=>`<div class="own-row"><span class="own-ty">${esc(x.type)}</span><span class="own-nm"><b>${esc(x.name)}</b>${x.shade?`<small>${esc(x.shade)}${x.est?' · 색상 추정':''}</small>`:''}</span><span class="own-src ${x.from}">${x.src}</span><button class="iconbtn" data-act="ownDel" data-v="${x.id}" data-f="${x.from}" aria-label="${esc(x.name)} 지우기">${ic('trash',16)}</button></div>`).join('')}</div>`).join('')
-   :'<p class="note" style="margin-top:0">아직 보유 제품이 없어요. 화장대 사진을 올리거나 아래에서 직접 추가해 주세요.</p>'}
-  ${S.ownAdding?`<form class="sform" data-ownform="1"><select name="type" aria-label="종류">${OWN_CATS.slice(0,4).map(c=>`<optgroup label="${c}">${AREA_TYPES[c].map(ty=>`<option>${ty}</option>`).join('')}</optgroup>`).join('')}</select><input name="name" placeholder="제품명 (예: 롬앤 블러 퍼지 틴트 02)" aria-label="제품명" required autofocus class="full"><div class="btns"><button type="button" class="sbtn muted" data-act="ownCancel">취소</button><button class="sbtn">추가</button></div></form>`
-   :`<button class="addstep" data-act="ownAdd">${ic('plus',18)}보유 제품 직접 추가</button>`}
-  <button class="linkbtn" data-act="editFrom" data-v="shelf">화장대 사진 다시 분석하기</button>
+  <div class="my-hd"><b>마이페이지</b><small>온보딩에서 알려주신 내용이에요. 눌러서 보고 고칠 수 있어요</small></div>
+  <div class="drawers">
+  ${drawer('basic','user','기본 정보',S.nick?`${esc(S.nick)} · ${S.age||'-'} · ${S.gender||'-'}`:'미입력',
+     `<dl class="dr-dl"><dt>닉네임</dt><dd>${esc(S.nick||'-')}</dd><dt>연령대</dt><dd>${S.age||'-'}</dd><dt>성별</dt><dd>${S.gender||'-'}</dd></dl>`,'s1')}
+  ${drawer('mood','spark','추구미 분위기',moods.length?moods.map(m=>'#'+m.tag).join(' '):'미입력',
+     moods.length?`<div class="dr-moods">${moods.map((m,i)=>`<span><em>${i+1}순위</em>${m.name}<i>${m.sw.map(x=>`<b style="background:${x}"></b>`).join('')}</i></span>`).join('')}</div>`:none('끌리는 분위기를 고르면 룩 방향이 맞춰져요'),'s2')}
+  ${drawer('pc','sun','퍼스널컬러',S.pc?(S.pc==='unknown'?'잘 모르겠어요':pcLabel()):'미입력',
+     S.pc&&S.pc!=='unknown'?`<p class="dr-p">${esc(pcLabel())} — 추천 컬러와 바르는 양을 이 기준으로 맞춰요</p>`:none(S.pc==='unknown'?'얼굴 사진 톤으로 추정해서 추천하고 있어요':'알려주시면 어울리는 컬러로 골라드려요'),'pc',S.pc?'수정하기':'입력하기')}
+  ${drawer('rt','text','메이크업 순서',S.routine.length?`${S.routine.length}단계 · ${S.routine.slice(0,3).join('→')}${S.routine.length>3?'…':''}`:'미입력',
+     S.routine.length?`<ol class="dr-ol">${S.routine.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:none('평소 순서를 알려주시면 새 제품 자리를 찾아드려요'),'rt')}
+  ${drawer('own','camera','보유 제품',all.length?`${all.length}개 · ${by.map(([k,l])=>`${k} ${l.length}`).join(' · ')}`:'미입력',
+     (by.length?by.map(([k,l])=>`<div class="own-cat"><h4>${k}<span>${l.length}</span></h4>${l.map(x=>`<div class="own-row"><span class="own-ty">${esc(x.type)}</span><span class="own-nm"><b>${esc(x.name)}</b>${x.shade?`<small>${esc(x.shade)}${x.est?' · 색상 추정':''}</small>`:''}</span><span class="own-src ${x.from}">${x.src}</span><button class="iconbtn" data-act="ownDel" data-v="${x.id}" data-f="${x.from}" aria-label="${esc(x.name)} 지우기">${ic('trash',16)}</button></div>`).join('')}</div>`).join(''):none('화장대 사진을 올리거나 직접 추가해 주세요'))
+     +(S.ownAdding?`<form class="sform" data-ownform="1"><select name="type" aria-label="종류">${OWN_CATS.slice(0,4).map(cc=>`<optgroup label="${cc}">${AREA_TYPES[cc].map(ty=>`<option>${ty}</option>`).join('')}</optgroup>`).join('')}</select><input name="name" placeholder="제품명 (예: 롬앤 블러 퍼지 틴트 02)" aria-label="제품명" required autofocus class="full"><div class="btns"><button type="button" class="sbtn muted" data-act="ownCancel">취소</button><button class="sbtn">추가</button></div></form>`
+       :`<button class="dr-add" data-act="ownAdd">${ic('plus',14)}직접 추가</button>`),'shelf','화장대 사진 다시 분석')}
+  ${drawer('concern','chat','메이크업 고민',S.concerns?(c.length?`${c.length}개 · ${esc(c[0].text)}${c.length>1?' 외':''}`:'특별한 고민 없음'):'미입력',
+     c.length?`<ul class="dr-ul">${c.map(x=>`<li><em>${x.area}</em>${esc(x.text)}</li>`).join('')}</ul>`:none(S.concerns?'특별한 고민이 없다고 하셨어요':'고민을 알려주시면 해결 방법까지 넣어드려요'),'s3')}
+  ${drawer('face','look','얼굴 분석',S.photoState==='done'?(fr?`${frType(fr)} · ${fr.shape}`:S.faceTraits?`${esc(S.faceTraits.eyes)} · ${esc(S.faceTraits.face)}`:'분석 완료'):'미입력',
+     S.photoState==='done'?`<dl class="dr-dl">${fr?`<dt>이미지 유형</dt><dd>${frType(fr)}</dd><dt>얼굴형</dt><dd>${fr.shape}</dd><dt>눈</dt><dd>${[fr.eyeShape,fr.lid,'눈꼬리 '+fr.tail].filter(Boolean).join(' · ')}</dd><dt>입술</dt><dd>${fr.lipThick} · ${fr.lipRatio}</dd>`:`<dt>눈매</dt><dd>${esc(S.faceTraits?S.faceTraits.eyes:'-')}</dd><dt>얼굴형</dt><dd>${esc(S.faceTraits?S.faceTraits.face:'-')}</dd>`}</dl>`:none('사진을 올리면 바를 위치와 범위를 얼굴에 맞춰요'),'s4',S.photoState==='done'?'사진·리포트 보기':'사진 올리기')}
+  </div>
  </div>
  ${tabbar('my')}</div>`};
 R.home=()=>{
@@ -2563,6 +2612,8 @@ dev.addEventListener('click',e=>{
     case 'saveShelf':S.shelf.skipped=false;next('shelf');break;
     case 'cHaveManual':S.core.haveManual=true;S.core.have=null;render();break;
     case 'openMy':go('my');break;
+    case 'myToggle':S.myOpen=S.myOpen===v?'':v;S.ownAdding=false;render();break;
+    case 'myEdit':S.returnTo='my';go(v);break;
     case 'tabHome':S.ownAdding=false;go('home','back');break;
     case 'tabLooks':go('looks');break;
     case 'tabMy':go('my');break;
