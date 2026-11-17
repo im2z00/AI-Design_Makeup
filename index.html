@@ -517,6 +517,11 @@ h1.title{margin:0;font-size:24px;line-height:1.36;font-weight:800;letter-spacing
 .dirfb form{display:flex;gap:6px}
 .dirfb input{flex:1;min-width:0;height:38px;border-radius:10px;border:1.5px solid var(--line);padding:0 10px;font-size:13.5px;outline:none}
 .dirfb input:focus{border-color:var(--rose)}
+.verdict{border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;background:var(--rose-tint)}
+.verdict.mid{background:#FFF6E5}
+.verdict .vb{align-self:flex-start;display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:800;border-radius:8px;padding:3px 8px;background:var(--rose-deep);color:var(--on-accent)}
+.verdict.mid .vb{background:#B87400}
+.verdict b{font-size:15.5px;font-weight:800;line-height:1.45;letter-spacing:-.01em}
 .fit h4{margin:10px 0 0;font-size:12.5px;font-weight:800;color:var(--rose-deep)}
 .fit.con h4{color:var(--ink-2)}
 .vwhy{margin:0;font-size:11.5px;line-height:1.5;color:var(--ink-2)}
@@ -2057,12 +2062,18 @@ R.c5=()=>{const k=S.core,have=k.have&&k.have!=='없어요'?k.have.replace(' 있�
   ['추구미',`설정한 추구미(${moods}) 중 ${lookTag(k.variant)} 방향의 ${lookName(k.variant)} 룩으로 만들었어요`,1],
   ['가진 제품',have?`${josa(have,'과','와')} 함께 쓰면 돼요. 새로 맞출 제품은 없어요`:'비슷한 컬러가 없어서 새로 쓰기 좋아요',1],
   ...(c?[['고민',`‘${c.text}’ 고민을 덜어주는 단계가 룩에 들어 있어요`,1]]:[])];
+ // One-line verdict first, then what to weigh, then the reasons.
+ const pcKnown=S.pc&&S.pc!=='unknown';
+ const verdict=have?['mid','조건부로 맞아요',`잘 어울리지만, 가진 ${josa(have,'과','와')} 겹치는지만 확인해 보세요`]
+  :!pcKnown?['mid','대체로 맞아요','추구미·얼굴과는 잘 맞아요. 퍼스널컬러를 알면 더 정확해져요']
+  :['good','잘 맞아요',`${pcLabel()}에 어울리고, 새로 들여도 활용도가 높아요`];
  return `<div class="scr">${statusBar()}${coreTop('구매 결정')}
  <div class="body">
   ${aiNote('결정 지원',`살지 말지는 ${nm()}이 정해요. 판단에 필요한 내용만 정리했어요.`)}
   <h1 class="title">${esc(k.prodName)},<br>${nm()}께 맞을까요?</h1>
-  <div class="fit"><h4>잘 맞는 이유</h4><ul>${fits.map(([h,t])=>`<li><span class="mk">${ic('check',12,2.8)}</span><span><b>${h}</b>${esc(t)}</span></li>`).join('')}</ul></div>
+  <div class="verdict ${verdict[0]}"><span class="vb">${verdict[0]==='good'?ic('check',14,2.8):'!'} ${verdict[1]}</span><b>${esc(verdict[2])}</b></div>
   <div class="fit con"><h4>고려할 점</h4><ul>${cons.map(([h,t])=>`<li><span class="mk warn">!</span><span><b>${h}</b>${esc(t)}</span></li>`).join('')}</ul></div>
+  <div class="fit"><h4>그래도 잘 맞는 이유</h4><ul>${fits.map(([h,t])=>`<li><span class="mk">${ic('check',12,2.8)}</span><span><b>${h}</b>${esc(t)}</span></li>`).join('')}</ul></div>
   <p class="note" style="margin-top:-4px">후기 경향은 AI가 알고 있는 일반적인 정보예요. 실제 가격은 다음 화면에서 쇼핑몰 기준으로 보여드려요.</p>
   <button class="linkbtn" data-act="cBackCond">룩이 아직 아쉬워요 · 조건 바꿔서 다시 보기</button>
  </div>
