@@ -1889,19 +1889,18 @@ const ownPhoto=()=>S.photoState==='done'&&S.photo&&S.photo!=='demo'&&S.faceLm;
 R.c3=()=>{const k=S.core,c=coreColor()[1],deep=deepen(c);
  const f=v=>{const m=MOODS.find(x=>x.id===v.replace('+',''))||MOODS[0],col=v.endsWith('+')?deep:c,strong=v.endsWith('+')?plusTone(v)==='진하게':lookOf(v).tone==='진하게';
    const fx=moodFx(v),mk={id:v.replace('+','p'),lid:k.cat==='아이'?col:(fx.lidC||m.sw[2]),lip:k.cat==='립'?col:(fx.lipC||m.sw[0]),blush:k.cat==='치크'?col:(fx.blushC||m.sw[1]),strong,wing:false,fx};
-   if(ownPhoto())return photoMakeup(mk);
    const ex=MOOD_IMG[v.replace('+','')];
-   if(ex)return `<img class="refimg" src="${ex}" alt="${lookName(v)} 예시" style="${v.endsWith('+')?(plusTone(v)==='진하게'?'filter:saturate(1.3) contrast(1.06)':'filter:saturate(.7) brightness(1.04)'):''}"><em class="fv-tag">예시 얼굴</em>`;
+   if(ex)return `<img class="refimg" src="${ex}" alt="${lookName(v)}">`;
+   if(ownPhoto())return photoMakeup(mk);
    return heroFace(mk).replace('<svg ','<svg preserveAspectRatio="xMidYMid slice" ');
  };
  if(!k.ready)return `<div class="scr">${statusBar()}${coreTop('룩 만드는 중')}<div class="loading-c" role="status"><span class="spin"></span>${esc(ro(k.prodName||''))} ${nm()} 룩을 만들고 있어요<small>추구미 ${S.moods.map(id=>lookTag(id)).join(' ')} · 퍼스널컬러 · 고민 ${S.concerns?S.concerns.length:0}개 반영 중</small></div></div>`;
  const dirs=lookDirs();
  return `<div class="scr">${statusBar()}${coreTop('방향 고르기')}
  <div class="body">
-  ${ownPhoto()?aiNote('선호 비교',k.newMood?`A는 평소 추구미, B는 새로 더한 ${lookTag(k.dirs[1])} 분위기예요.`:k.dirFb?`‘${esc(k.dirFb)}’ 의견을 반영했어요.`:`추구미 ${S.moods.map(id=>lookTag(id)).join(' ')} 기준 두 가지 방향이에요.${ownPhoto()?' 내 사진에 입혔어요.':''}`):S.photoState==='analyzing'?`<div class="usephoto busy" role="status"><span class="spin"></span><span><b>얼굴 사진을 분석하고 있어요</b><small>끝나면 두 방향을 내 얼굴에 입혀서 보여드려요</small></span></div>`
-   :`<label class="usephoto" for="c3file" tabindex="0">${ic('camera',20)}<span><b>내 얼굴 사진으로 비교하기</b><small>그림 대신 내 사진에 두 방향 화장을 입혀 보여드려요</small></span>${ic('chevD',16,2)}</label><input type="file" id="c3file" accept="image/*" hidden>`}
+  ${aiNote('선호 비교',k.newMood?`A는 평소 추구미, B는 새로 더한 ${lookTag(k.dirs[1])} 분위기예요.`:k.dirFb?`‘${esc(k.dirFb)}’ 의견을 반영했어요.`:`추구미 ${S.moods.map(id=>lookTag(id)).join(' ')} 기준 두 가지 방향이에요.`)}
   <h1 class="title">어느 쪽이 더 끌리세요?</h1>
-  <div class="dirs">${dirs.map((v,i)=>`<button class="dir" data-act="cVar" data-v="${v}" aria-pressed="${k.variant===v}"><span class="fv">${f(v)}${ownPhoto()?'<em class="fv-tag">내 사진</em>':''}</span><span class="ck">${ic('check',13,2.6)}</span><b>${'AB'[i]}. ${lookName(v)}</b><span class="dmeta2">${(m=>`난이도 ${'●'.repeat(m.lv)}${'○'.repeat(3-m.lv)} · 약 ${m.min}분`)(dirMeta(v))}</span>
+  <div class="dirs">${dirs.map((v,i)=>`<button class="dir" data-act="cVar" data-v="${v}" aria-pressed="${k.variant===v}"><span class="fv">${f(v)}</span><span class="ck">${ic('check',13,2.6)}</span><b>${'AB'[i]}. ${lookName(v)}</b><span class="dmeta2">${(m=>`난이도 ${'●'.repeat(m.lv)}${'○'.repeat(3-m.lv)} · 약 ${m.min}분`)(dirMeta(v))}</span>
     <span class="fxtags">${moodFx(v).tags.slice(0,4).map(x=>`<i>${x}</i>`).join('')}</span>
     <span class="dwhy"><i>왜?</i>${esc(dirWhy(v))}</span></button>`).join('')}</div>
   ${k.dirOpen?`<div class="dirfb"><b>어떤 점이 아쉬웠나요?</b><div class="chips">${[['light','더 연하게'],['strong','더 진하게'],['other','다른 분위기로']].map(([v,l])=>`<button class="chip" data-act="cDirFb" data-v="${v}">${l}</button>`).join('')}</div>
