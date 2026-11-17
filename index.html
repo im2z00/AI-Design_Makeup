@@ -367,6 +367,10 @@ h1.title{margin:0;font-size:24px;line-height:1.36;font-weight:800;letter-spacing
 .own-row .iconbtn{width:30px;height:30px;color:var(--ink-3)}
 .tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--ink-3);font-weight:600}
 .pairbox{display:flex;flex-direction:column;gap:6px;background:var(--card);border:1.5px solid var(--rose);border-radius:14px;padding:10px}
+.pairin{display:flex;gap:6px}
+.pairin input{flex:1;min-width:0}
+.pairin .sbtn{flex:none;height:40px;padding:0 16px}
+.pairsug:empty{display:none}
 .pairbox input{height:40px;border-radius:10px;border:1.5px solid var(--line);padding:0 12px;font-size:14px;outline:none;background:#FFFFFF;color:var(--ink)}
 .pairbox input:focus{border-color:var(--rose)}
 .pairsug{display:flex;flex-direction:column}
@@ -1664,7 +1668,6 @@ function pairSugs(rule,q){
   // ranked products only when the name matches, or the brand matches and it is the right category
   const rk=s?RANK.filter(r=>r[0].toLowerCase().includes(low)||r[2]&&low.includes(r[2].toLowerCase())&&r[1]===rule.area&&rule.types.some(ty=>r[0].includes(ty.replace('립라이너','라이너')))).map(r=>[r[0],'올리브영 랭킹']):[];
   const list=[...own.filter(([n])=>!s||n.toLowerCase().includes(low)),...rk];
-  if(s&&!list.some(([n])=>n===s))list.unshift([s,'입력한 이름 그대로']);
   return list.slice(0,6);
 }
 R.c2=()=>{const k=S.core,known=k.haveManual?null:shelfFor(...HAVE_TYPES[k.cat]);
@@ -1682,13 +1685,13 @@ R.c2=()=>{const k=S.core,known=k.haveManual?null:shelfFor(...HAVE_TYPES[k.cat]);
   ${k.occ&&!known?qa(`지금 쓰는 ${HAVE_Q[k.cat]}가 있나요?`,'있는 제품은 살려서 새 제품과 섞어 쓰는 방법을 알려드려요',HAVE[k.cat],k.have,'cHave'):''}
   ${k.occ&&k.have&&rule?`<div class="qa"><div class="ai-row"><span class="ava">${ic('spark',16)}</span><div class="msg ai">${esc(rule.why)}<br><b>${esc(rule.q)}</b></div></div><small class="why">화장대 사진에서 못 찾은 제품도 여기서 더할 수 있어요</small>
    <div class="chips"><button class="chip" data-act="cPairYes" aria-pressed="${!!(k.pair&&(k.pair.typing||k.pair.item))}">있어요, 입력할게요</button><button class="chip" data-act="cPairNo" aria-pressed="${!!(k.pair&&k.pair.done&&!k.pair.item)}">없어요, 없이 시작할게요</button></div>
-   ${k.pair&&k.pair.typing?`<div class="pairbox"><input id="pairq" placeholder="${esc(rule.need)} 이름 검색 (예: 브랜드 + 제품명)" value="${esc(k.pair.q||'')}" autocomplete="off" aria-label="${esc(rule.need)} 검색">
+   ${k.pair&&k.pair.typing?`<div class="pairbox"><div class="pairin"><input id="pairq" placeholder="${esc(rule.need)} 이름 (예: 브랜드 + 제품명)" value="${esc(k.pair.q||'')}" autocomplete="off" enterkeyhint="done" aria-label="${esc(rule.need)} 이름"><button class="sbtn" data-act="cPairEnter">입력</button></div>
      <div class="pairsug" id="pairsug">${pairSugHTML(rule,k.pair.q||'')}</div></div>`:''}
    ${k.pair&&k.pair.done?(k.pair.item?`<div class="msg me">${esc(k.pair.item)} 있어요</div><div class="ai-row"><span class="ava">${ic('spark',16)}</span><div class="msg ai">좋아요. <b>${esc(k.pair.item)}</b>도 함께 쓰는 방법으로 보여드릴게요. 마이페이지 보유 제품에도 담아뒀어요.</div></div>`
      :`<div class="msg me">없어요, 없이 시작할게요</div><div class="ai-row"><span class="ava">${ic('spark',16)}</span><div class="msg ai">${esc(rule.noneMsg)}</div></div>`):''}</div>`:''}
  </div>
  <div class="foot"><button class="cta" data-act="coreNext" ${k.occ&&k.have&&(!rule||k.pair&&k.pair.done)?'':'disabled'}>룩 만들기</button></div></div>`};
-const pairSugHTML=(rule,q)=>{const l=pairSugs(rule,q);return l.length?l.map(([n,src])=>`<button data-act="cPairPick" data-v="${esc(n)}"><b>${esc(n)}</b><small>${src}</small></button>`).join(''):`<small class="pairhint">${rule.types.includes('파우더')?'예: 이니스프리 노세범 미네랄 파우더':'제품 이름을 입력하면 골라서 넣을 수 있어요'}</small>`};
+const pairSugHTML=(rule,q)=>{const l=pairSugs(rule,q);return l.length?l.map(([n,src])=>`<button data-act="cPairPick" data-v="${esc(n)}"><b>${esc(n)}</b><small>${src}</small></button>`).join(''):q.trim()?'':`<small class="pairhint">${rule.types.includes('파우더')?'예: 이니스프리 노세범 미네랄 파우더':'제품 이름을 입력하면 골라서 넣을 수 있어요'}</small>`};
 // How each S2 mood shapes the look. `+` after a mood id = the same mood, worn stronger.
 const MOOD_LOOK={
  natural:{name:'꾸안꾸 내추럴',desc:'스킨톤 베이지로 결만 정돈',eye:', 경계 없이 아주 얇게',other:', 립밤처럼 투명하게',tone:'은은하게'},
@@ -2213,6 +2216,7 @@ function bindScreen(){
   dev.querySelector('form[data-dirform]')?.addEventListener('submit',e=>{e.preventDefault();const t=String(new FormData(e.target).get('t')).trim();if(!t)return;applyDirFb(t.slice(0,20),dirKind(t))});
   dev.querySelector('form[data-ownform]')?.addEventListener('submit',e=>{e.preventDefault();const d=new FormData(e.target),name=String(d.get('name')).trim();if(!name)return;S.owned=S.owned||[];S.owned.push({id:newId(),type:String(d.get('type')),name,src:'직접 추가'});S.ownAdding=false;render();toast(`‘${name}’을(를) 보유 제품에 담았어요`)});
   const pq=dev.querySelector('#pairq');
+  if(pq)pq.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();dev.querySelector('[data-act=cPairEnter]').click()}});
   if(pq)pq.addEventListener('input',()=>{S.core.pair.q=pq.value;const r=pairRule(S.core);if(r)dev.querySelector('#pairsug').innerHTML=pairSugHTML(r,pq.value)});
   const camv=dev.querySelector('#camv');if(camv&&camStream){camv.srcObject=camStream;camv.play().catch(()=>{})}
   if(S.screen==='s4'&&S.photoState==='done'&&S.photo&&S.photo!=='demo'&&!(S.faceTraits&&S.faceTraits.report)&&!S.reportState&&!S.preview)fetchReport();
@@ -2299,6 +2303,8 @@ dev.addEventListener('click',e=>{
     case 'ownAdd':S.ownAdding=true;render();break;
     case 'ownCancel':S.ownAdding=false;render();break;
     case 'ownDel':{if(el.dataset.f==='shelf'){S.shelf.items=S.shelf.items.filter(x=>x.id!==v)}else{S.owned=(S.owned||[]).filter(x=>x.id!==v)}render();toast('보유 제품에서 뺐어요');break}
+    case 'cPairEnter':{const val=(dev.querySelector('#pairq')?.value||'').trim();if(!val){dev.querySelector('#pairq')?.focus();toast('제품 이름을 입력해 주세요');break}
+      const r=pairRule(S.core);S.core.pair={typing:false,done:true,item:val};if(r)addOwned(r.types[0],val);render();break}
     case 'cPairYes':S.core.pair={typing:true,q:'',done:false,item:null};render();dev.querySelector('#pairq')?.focus();break;
     case 'cPairNo':S.core.pair={typing:false,done:true,item:null};render();break;
     case 'cPairPick':{const r=pairRule(S.core);S.core.pair={typing:false,done:true,item:v};if(r)addOwned(r.types[0],v);}render();toast(`‘${v}’도 함께 쓰는 방법으로 보여드릴게요`);break;
