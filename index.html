@@ -1243,7 +1243,7 @@ function next(from){
 }
 function back(){
   // opened from My page: the arrow walks the onboarding steps; the right-hand button goes back to My page
-  if(S.myBack&&(!S.returnTo||S.returnTo==='my')){const i=ORDER.indexOf(S.screen);if(i>0)go(ORDER[i-1],'back');else go('my','back');return}
+  if(S.myBack&&(!S.returnTo||S.returnTo==='my')){const i=ORDER.indexOf(S.screen);if(i>1)go(ORDER[i-1],'back');else{S.returnTo=null;go('my','back')}return} // the welcome page (s0) is only for first-time visitors
   if(S.returnTo){const r=S.returnTo;S.returnTo=r==='s6'&&S.myBack?'my':null;go(r,'back');return}
   const i=ORDER.indexOf(S.screen);if(i>0)go(ORDER[i-1],'back');
 }
