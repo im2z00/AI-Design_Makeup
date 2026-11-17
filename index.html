@@ -388,7 +388,7 @@ h1.title{margin:0;font-size:24px;line-height:1.36;font-weight:800;letter-spacing
 .qa .chips{padding-left:38px}
 .dirs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .dir{position:relative;display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:8px}
-.dir .fv{aspect-ratio:1/1;max-width:100%;border-radius:12px;overflow:hidden;display:block}
+.dir .fv{aspect-ratio:10/9;max-width:100%;border-radius:12px;overflow:hidden;display:block}
 .dir .fv{position:relative}
 .dir .fv svg{width:100%;height:100%;display:block}
 .mk-photo{position:absolute;inset:0;display:block}
@@ -537,9 +537,15 @@ h1.title{margin:0;font-size:24px;line-height:1.36;font-weight:800;letter-spacing
 .tm-l{font-size:12.5px;font-weight:800;color:var(--ink)}
 .tm-l small{font-weight:500;color:var(--ink-3);font-size:11px;margin-left:4px}
 .trymood .tm-chips{display:flex;flex-wrap:wrap;gap:5px}
-.tmk{font-size:12px;font-weight:800;color:var(--rose-deep);background:var(--rose-tint);border:1.5px solid transparent;border-radius:8px;padding:4px 9px}
-.tmk[aria-pressed="true"]{background:var(--rose-deep);color:var(--on-accent)}
-.tmk.reset{background:var(--sand);color:var(--ink-2)}
+.tmk{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;color:var(--ink);background:#FFFFFF;border:1.5px solid var(--line);border-radius:14px;padding:4px 10px 4px 7px;cursor:pointer;box-shadow:0 1px 2px rgba(20,35,70,.08);transition:border-color .15s,background .15s,color .15s,transform .12s,box-shadow .15s}
+.tmk::before{content:'+';font-size:13px;font-weight:800;color:var(--rose-deep);line-height:1}
+.tmk:hover{border-color:var(--rose);color:var(--rose-deep);background:var(--rose-tint);transform:translateY(-1px);box-shadow:0 3px 8px rgba(47,107,255,.18)}
+.tmk:active{transform:scale(.96);box-shadow:none}
+.tmk:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
+.tmk[aria-pressed="true"]{background:var(--rose-deep);border-color:var(--rose-deep);color:var(--on-accent)}
+.tmk[aria-pressed="true"]::before{content:'✓';color:var(--on-accent);font-size:11px}
+.tmk.reset{color:var(--ink-2)}
+.tmk.reset::before{content:'↺';color:var(--ink-2)}
 .chip.tm{flex:none}
 .trymood b{font-size:15px;font-weight:800}
 .trymood small{font-size:12px;color:var(--ink-2);line-height:1.45;margin-top:-4px}
