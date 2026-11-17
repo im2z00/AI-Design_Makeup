@@ -1065,7 +1065,7 @@ const I={
  play:'<path d="M8.5 5.8v12.4L18.5 12z" fill="currentColor"/>',
  pause:'<path d="M9 5.5v13M15 5.5v13"/>',
  dice:'<rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r="1.1" fill="currentColor"/><circle cx="15" cy="9" r="1.1" fill="currentColor"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/><circle cx="9" cy="15" r="1.1" fill="currentColor"/><circle cx="15" cy="15" r="1.1" fill="currentColor"/>',
- chevD:'<path d="M6 9l6 6 6-6"/>',chevU:'<path d="M6 15l6-6 6 6"/>',chevR:'<path d="M9 6l6 6-6 6"/>',close:'<path d="M6 6l12 12M18 6L6 18"/>',
+ chevD:'<path d="M6 9l6 6 6-6"/>',chevU:'<path d="M6 15l6-6 6 6"/>',chevR:'<path d="M9 6l6 6-6 6"/>',refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>',close:'<path d="M6 6l12 12M18 6L6 18"/>',
  front:'<ellipse cx="12" cy="12.5" rx="6.5" ry="8"/><path d="M12 5v15" stroke-dasharray="1.6 2.2"/><path d="M3 12.5h2M19 12.5h2"/>',
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
  bare:'<ellipse cx="12" cy="12.5" rx="6.5" ry="8"/><path d="M9.6 15.6c1.4.9 3.4.9 4.8 0"/><path d="M9 11h1.2M13.8 11H15"/>',
@@ -1238,6 +1238,7 @@ function go(id,dir='fwd'){
   if(id==='s3')enterS3();
 }
 function next(from){
+  if(from==='s6'&&S.myBack&&!S.returnTo){go('my','back');toast('내 정보를 수정했어요');return}
   if(S.returnTo){const r=S.returnTo;S.returnTo=r==='s6'&&S.myBack?'my':null;go(r,'back');if(r==='c4')toast('바뀐 정보로 룩을 다시 맞췄어요');return}
   go(ORDER[ORDER.indexOf(from)+1]);
 }
@@ -1582,7 +1583,7 @@ R.s6=()=>{
   </div>
   <p class="note">마이페이지에서 언제든 수정할 수 있어요.</p>
  </div>
- <div class="foot"><button class="cta" data-act="next">${S.returnTo==='my'?'수정 완료':'관심 제품 검색하러 가기'}</button></div></div>`};
+ <div class="foot"><button class="cta" data-act="next">${S.returnTo==='my'||S.myBack?'수정 완료':'관심 제품 검색하러 가기'}</button></div></div>`};
 
 const tabbar=on=>`<nav class="tabbar" aria-label="하단 메뉴">${[['home','홈','home','tabHome'],['looks','내 룩','look','tabLooks'],['my','마이','user','tabMy']].map(([k,l,i,a])=>`<button class="${on===k?'on':''}" data-act="${a}" ${on===k?'aria-current="page"':''}>${ic(i,22)}${l}${k==='looks'&&(S.looks||[]).length?`<em class="tb-n">${S.looks.length}</em>`:''}</button>`).join('')}</nav>`;
 // ---- My looks: every how-to the user opened is kept here
@@ -1630,7 +1631,7 @@ R.my=()=>{
  <div class="body">
   <div class="home-hd"><div class="brand"><b></b><span class="blind" role="img" aria-label="서비스명 미정"></span></div><button class="iconbtn" data-act="tabMy" aria-label="마이페이지">${ic('user',22)}</button></div>
   <div class="my-hd"><b>마이페이지</b><small>온보딩에서 알려주신 내용이에요. 눌러서 보고 고칠 수 있어요</small></div>
-  <button class="my-reedit" data-act="myRestart"><span class="dr-ic">${ic('pencil',18)}</span><span class="dr-t"><b>내 정보 다시 수정하기</b><small>입력한 정보를 지우고 1단계부터 다시 시작해요</small></span>${ic('chevR',16,2)}</button>
+  <button class="my-reedit" data-act="myRestart"><span class="dr-ic">${ic('refresh',18)}</span><span class="dr-t"><b>내 정보 초기화하기</b><small>입력한 정보를 지우고 1단계부터 다시 시작해요</small></span>${ic('chevR',16,2)}</button>
   <div class="drawers">
   ${drawer('basic','user','기본 정보',S.nick?`${esc(S.nick)} · ${S.age||'-'} · ${S.gender||'-'}`:'미입력',
      `<dl class="dr-dl"><dt>닉네임</dt><dd>${esc(S.nick||'-')}</dd><dt>연령대</dt><dd>${S.age||'-'}</dd><dt>성별</dt><dd>${S.gender||'-'}</dd></dl>`,'s1')}
@@ -2628,7 +2629,7 @@ dev.addEventListener('click',e=>{
     case 'openMy':go('my');break;
     case 'myToggle':S.myOpen=S.myOpen===v?'':v;S.ownAdding=false;render();break;
     case 'myEdit':S.returnTo='my';S.myBack=true;go(v);break;
-    case 'myRestart':{const keep={looks:S.looks||[],owned:S.owned||[]};S=Object.assign(fresh(),keep,{myBack:true});go('s1');toast('처음부터 다시 입력해요 · 저장한 룩은 그대로예요');break}
+    case 'myRestart':{const keep={looks:S.looks||[],owned:S.owned||[]};S=Object.assign(fresh(),keep,{myBack:true});go('s1');toast('정보를 초기화했어요 · 저장한 룩은 그대로예요');break}
     case 'stepNext':{const i=ORDER.indexOf(S.screen);if(i>=0&&i<ORDER.length-1)go(ORDER[i+1]);break}
     case 'toMy':S.returnTo=null;go('my','back');break;
     case 'tabHome':S.ownAdding=false;go('home','back');break;
