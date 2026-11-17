@@ -489,7 +489,7 @@ h1.title{margin:0;font-size:24px;line-height:1.36;font-weight:800;letter-spacing
 .lstep .fix{font-size:12px;color:var(--rose-deep);font-weight:600}
 .lstep .alt{align-self:flex-start;margin-top:2px;font-size:12px;font-weight:700;color:var(--ink-2);border:1.5px solid var(--line);border-radius:10px;padding:4px 9px;display:inline-flex;gap:4px;align-items:center;background:var(--card)}
 .foot.dual{display:flex;gap:8px}
-.cta.sec{flex:0 0 auto;width:auto;padding:0 18px;background:var(--sand);color:var(--ink)}
+.cta.sec{flex:0 0 auto;width:auto;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;gap:5px;background:var(--sand);color:var(--ink)}
 .cta.sec2{background:var(--sand);color:var(--ink)}
 .vlist{display:flex;flex-direction:column;gap:8px}
 .vcard{display:grid;grid-template-columns:112px 1fr;gap:12px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;align-items:center}
@@ -2459,7 +2459,7 @@ R.c6=()=>{const k=S.core;
    ${shops.map(([n,pr,ship],i)=>`<button class="prow2" data-act="cStore" data-v="${i}"><span class="st">${esc(n)}${i===0?'<span class="low">최저가</span>':''}</span><span class="pr">${Number(pr).toLocaleString('ko-KR')}원</span><small>${esc(ship)}</small><span class="go">이동 ${ic('chevD',12)}</span></button>`).join('')}</div>
   <p class="note" style="margin-top:0">가격·배송비는 쇼핑몰에서 바뀔 수 있어요. 이동한 뒤 한 번 더 확인해 주세요.</p>
  </div>
- <div class="foot"><button class="cta sec2" data-act="openSearch">다른 제품도 찾아볼래요</button></div>
+ <div class="foot dual"><button class="cta sec" data-act="tabHome">${ic('home',18)}홈으로</button><button class="cta sec2" data-act="openSearch">다른 제품도 찾아볼래요</button></div>
  ${store?`<div class="pop-dim" data-act="cStoreCancel"></div><div class="pop" role="dialog" aria-modal="true" aria-labelledby="pop-t">
   <span class="pop-ic">${ic('lock',24)}</span><h2 id="pop-t">‘${esc(store[0])}’로 이동할까요?</h2>
   <p>${Number(store[1]).toLocaleString('ko-KR')}원 · ${esc(store[2])}<br>결제는 쇼핑몰에서 직접 진행돼요.<br>앱이 대신 결제하지 않아요.</p>
