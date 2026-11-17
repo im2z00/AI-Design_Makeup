@@ -381,10 +381,10 @@ h1.title{margin:0;font-size:24px;line-height:1.36;font-weight:800;letter-spacing
 .dr-edit:hover{background:var(--rose-soft)}
 .dr-add{align-self:flex-start;display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700;color:var(--ink-2);border:1.5px dashed var(--line);border-radius:10px;padding:6px 10px}
 .dr .own-cat{border:0;padding:0;background:none}
-.my-reedit{width:100%;display:flex;align-items:center;gap:10px;padding:12px;text-align:left;cursor:pointer;background:var(--rose-tint);border:1px solid var(--rose);border-radius:16px;color:var(--ink);transition:background .15s,box-shadow .15s}
-.my-reedit:hover{background:var(--rose-soft);box-shadow:0 4px 12px rgba(47,107,255,.12)}
-.my-reedit .dr-ic{background:var(--rose-deep);color:var(--on-accent)}
-.my-reedit>.ic:last-child{flex:none;color:var(--rose-deep)}
+.my-reedit{margin-top:8px;width:100%;display:flex;align-items:center;gap:10px;padding:12px;text-align:left;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:16px;color:var(--ink);transition:background .15s,box-shadow .15s}
+.my-reedit:hover{border-color:var(--rose);background:var(--rose-soft)}
+.my-reedit .dr-ic{background:var(--sand);color:var(--ink-2)}
+.my-reedit>.ic:last-child{flex:none;color:var(--ink-3)}
 .my-hd{display:flex;flex-direction:column;gap:2px;padding-top:4px}
 .my-hd b{font-size:22px;font-weight:800;letter-spacing:-.02em}
 .my-hd small{font-size:12.5px;color:var(--ink-3)}
@@ -1631,7 +1631,6 @@ R.my=()=>{
  <div class="body">
   <div class="home-hd"><div class="brand"><b></b><span class="blind" role="img" aria-label="서비스명 미정"></span></div><button class="iconbtn" data-act="tabMy" aria-label="마이페이지">${ic('user',22)}</button></div>
   <div class="my-hd"><b>마이페이지</b><small>온보딩에서 알려주신 내용이에요. 눌러서 보고 고칠 수 있어요</small></div>
-  <button class="my-reedit" data-act="myRestart"><span class="dr-ic">${ic('refresh',18)}</span><span class="dr-t"><b>내 정보 초기화하기</b><small>입력한 정보를 지우고 1단계부터 다시 시작해요</small></span>${ic('chevR',16,2)}</button>
   <div class="drawers">
   ${drawer('basic','user','기본 정보',S.nick?`${esc(S.nick)} · ${S.age||'-'} · ${S.gender||'-'}`:'미입력',
      `<dl class="dr-dl"><dt>닉네임</dt><dd>${esc(S.nick||'-')}</dd><dt>연령대</dt><dd>${S.age||'-'}</dd><dt>성별</dt><dd>${S.gender||'-'}</dd></dl>`,'s1')}
@@ -1650,6 +1649,7 @@ R.my=()=>{
   ${drawer('face','look','얼굴 분석',S.photoState==='done'?(fr?`${frType(fr)} · ${fr.shape}`:S.faceTraits?`${esc(S.faceTraits.eyes)} · ${esc(S.faceTraits.face)}`:'분석 완료'):'미입력',
      S.photoState==='done'?`<dl class="dr-dl">${fr?`<dt>이미지 유형</dt><dd>${frType(fr)}</dd><dt>얼굴형</dt><dd>${fr.shape}</dd><dt>눈</dt><dd>${[fr.eyeShape,fr.lid,'눈꼬리 '+fr.tail].filter(Boolean).join(' · ')}</dd><dt>입술</dt><dd>${fr.lipThick} · ${fr.lipRatio}</dd>`:`<dt>눈매</dt><dd>${esc(S.faceTraits?S.faceTraits.eyes:'-')}</dd><dt>얼굴형</dt><dd>${esc(S.faceTraits?S.faceTraits.face:'-')}</dd>`}</dl>`:none('사진을 올리면 바를 위치와 범위를 얼굴에 맞춰요'),'s4',S.photoState==='done'?'사진·리포트 보기':'사진 올리기')}
   </div>
+  <button class="my-reedit" data-act="myRestart"><span class="dr-ic">${ic('refresh',18)}</span><span class="dr-t"><b>내 정보 초기화하기</b><small>입력한 정보를 지우고 1단계부터 다시 시작해요</small></span>${ic('chevR',16,2)}</button>
  </div>
  ${tabbar('my')}</div>`};
 R.home=()=>{
