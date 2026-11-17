@@ -1,0 +1,6 @@
+{
+  "functions": {
+    "api/ai.js": { "maxDuration": 60 },
+    "api/shop.js": { "maxDuration": 10 }
+  }
+}
