@@ -347,6 +347,25 @@ h1.title{margin:0;font-size:24px;line-height:1.36;font-weight:800;letter-spacing
 .swc{display:inline-flex;align-items:center;gap:7px}
 .note.srcs{text-align:left;line-height:1.6}
 .note.srcs a{color:var(--rose-deep);text-decoration:underline;text-underline-offset:2px}
+.my-hd{display:flex;flex-direction:column;gap:2px;padding-top:4px}
+.my-hd b{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.my-hd small{font-size:12.5px;color:var(--ink-3)}
+.own-h{display:flex;flex-direction:column;gap:2px}
+.own-h b{font-size:16px;font-weight:800}.own-h em{font-style:normal;color:var(--rose-deep)}
+.own-h small{font-size:12px;color:var(--ink-3)}
+.own-cat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px 12px}
+.own-cat h4{margin:6px 0 2px;font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:6px}
+.own-cat h4 span{font-size:11px;font-weight:800;color:var(--rose-deep);background:var(--rose-tint);border-radius:8px;padding:0 6px}
+.own-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.own-cat h4+.own-row{border-top:0}
+.own-ty{font-size:11px;font-weight:700;color:var(--ink-2);background:var(--sand);border-radius:6px;padding:2px 6px}
+.own-nm{min-width:0;display:flex;flex-direction:column}
+.own-nm b{font-size:13.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.own-nm small{font-size:11.5px;color:var(--ink-3)}
+.own-src{font-size:10.5px;font-weight:700;border-radius:6px;padding:1px 6px;background:var(--rose-tint);color:var(--rose-deep);white-space:nowrap}
+.own-src.shelf{background:var(--sand);color:var(--ink-2)}
+.own-row .iconbtn{width:30px;height:30px;color:var(--ink-3)}
+.tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--ink-3);font-weight:600}
 .pairbox{display:flex;flex-direction:column;gap:6px;background:var(--card);border:1.5px solid var(--rose);border-radius:14px;padding:10px}
 .pairbox input{height:40px;border-radius:10px;border:1.5px solid var(--line);padding:0 12px;font-size:14px;outline:none;background:#FFFFFF;color:var(--ink)}
 .pairbox input:focus{border-color:var(--rose)}
@@ -894,7 +913,7 @@ let S;
 function fresh(){return{screen:'s0',nick:'',age:null,gender:null,moods:[],
   chat:[{from:'ai',text:AI_FIRST}],draft:'',phase:'idle',demoTyped:false,listening:false,bannerOpen:true,
   pc:null,pcSkipped:false,routine:[],shelf:{photo:null,file:null,state:'none',items:[],skipped:false,hl:null,editing:null,adding:null,note:''},concerns:null,concernSkipped:false,sheet:'closed',editing:null,adding:false,popup:null,core:null,
-  photo:null,photoState:'none',photoSkipped:false,camera:false,returnTo:null,slide:0,query:''}}
+  photo:null,photoState:'none',photoSkipped:false,camera:false,returnTo:null,slide:0,query:'',owned:[]}}
 S=fresh();
 const nm=()=>(S.nick.trim()||'회원')+'님';
 let uid=1;const newId=()=>'st'+(uid++);
@@ -1402,6 +1421,19 @@ R.s6=()=>{
  </div>
  <div class="foot"><button class="cta" data-act="next">관심 제품 검색하러 가기</button></div></div>`};
 
+R.my=()=>{
+  const all=ownedAll(),by=OWN_CATS.map(c=>[c,all.filter(x=>catOfType(x.type)===c)]).filter(([,l])=>l.length);
+  return `<div class="scr home">${statusBar()}
+ <div class="body">
+  <div class="my-hd"><b>마이페이지</b><small>${esc(S.nick||'회원')}님 · ${S.moods.map(id=>'#'+MOODS.find(m=>m.id===id).tag).join(' ')}${S.pc&&S.pc!=='unknown'?' · '+pcLabel():''}</small></div>
+  <div class="own-h"><b>보유 제품 <em>${all.length}</em></b><small>화장대 사진과 룩 만들 때 알려주신 제품을 모았어요</small></div>
+  ${by.length?by.map(([c,l])=>`<div class="own-cat"><h4>${c}<span>${l.length}</span></h4>${l.map(x=>`<div class="own-row"><span class="own-ty">${esc(x.type)}</span><span class="own-nm"><b>${esc(x.name)}</b>${x.shade?`<small>${esc(x.shade)}${x.est?' · 색상 추정':''}</small>`:''}</span><span class="own-src ${x.from}">${x.src}</span><button class="iconbtn" data-act="ownDel" data-v="${x.id}" data-f="${x.from}" aria-label="${esc(x.name)} 지우기">${ic('trash',16)}</button></div>`).join('')}</div>`).join('')
+   :'<p class="note" style="margin-top:0">아직 보유 제품이 없어요. 화장대 사진을 올리거나 아래에서 직접 추가해 주세요.</p>'}
+  ${S.ownAdding?`<form class="sform" data-ownform="1"><select name="type" aria-label="종류">${OWN_CATS.slice(0,4).map(c=>`<optgroup label="${c}">${AREA_TYPES[c].map(ty=>`<option>${ty}</option>`).join('')}</optgroup>`).join('')}</select><input name="name" placeholder="제품명 (예: 롬앤 블러 퍼지 틴트 02)" aria-label="제품명" required autofocus class="full"><div class="btns"><button type="button" class="sbtn muted" data-act="ownCancel">취소</button><button class="sbtn">추가</button></div></form>`
+   :`<button class="addstep" data-act="ownAdd">${ic('plus',18)}보유 제품 직접 추가</button>`}
+  <button class="linkbtn" data-act="editFrom" data-v="shelf">화장대 사진 다시 분석하기</button>
+ </div>
+ <nav class="tabbar" aria-label="하단 메뉴"><button data-act="closeMy">${ic('home',22)}홈</button><span>${ic('look',22)}내 룩</span><span class="on">${ic('user',22)}마이</span></nav></div>`};
 R.home=()=>{
   const c=S.concerns&&S.concerns.length?S.concerns:null;
   const moods=S.moods.map(id=>'#'+MOODS.find(m=>m.id===id).tag);
@@ -1416,7 +1448,7 @@ R.home=()=>{
   <p class="sec-t">요즘 많이 찾는 제품 <small style="font-weight:500;color:var(--ink-3);font-size:12px">올리브영 메이크업 랭킹</small></p>
   <div class="trend">${RANK.slice(0,5).map(r=>r[0]).map(t=>`<button data-act="trend" data-v="${t}">${t}</button>`).join('')}</div>
  </div>
- <nav class="tabbar" aria-label="하단 메뉴"><span class="on">${ic('home',22)}홈</span><span>${ic('look',22)}내 룩</span><span>${ic('user',22)}마이</span></nav></div>`};
+ <nav class="tabbar" aria-label="하단 메뉴"><span class="on">${ic('home',22)}홈</span><span>${ic('look',22)}내 룩</span><button data-act="openMy">${ic('user',22)}마이</button></nav></div>`};
 
 // Olive Young makeup ranking (색조 only, skincare excluded), 2026-11-16. Promo tags in brackets removed from names.
 const RANK_SRC='올리브영 메이크업 랭킹 · 11월 16일 기준';
@@ -1598,6 +1630,14 @@ R.c1=()=>{const k=S.core;
  <div class="foot"><button class="cta" data-act="coreNext" ${sel&&k.color!==null?'':'disabled'}>이 제품으로 볼게요</button></div></div>`};
 // A product that lifts the one of interest — asked in C2 so the look can use it (or work without it).
 const isBrownish=hex=>{const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return r>=g&&g>=b&&r-b>35&&r<215};
+// Products the user told us about in the questions (the vanity photo keeps its own list in S.shelf.items).
+function addOwned(type,name){S.owned=S.owned||[];if(!name||S.owned.some(x=>x.name===name)||S.shelf.items.some(x=>shelfName(x)===name))return;S.owned.push({id:newId(),type,name,src:'질문에서 입력'})}
+const OWN_CATS=['베이스','아이','치크','립','기타'];
+const catOfType=ty=>OWN_CATS.find(c=>(AREA_TYPES[c]||[]).includes(ty))||'기타';
+function ownedAll(){
+  return [...S.shelf.items.map(x=>({id:x.id,type:x.item,name:x.name||`${x.item} (제품명 미확인)`,shade:(x.shade||'').replace(/\s*\(추정\)|\?$/g,''),est:isEst(x),src:'화장대 사진',from:'shelf'})),
+          ...(S.owned||[]).map(x=>({...x,from:'owned'}))];
+}
 function pairRule(k){
   const nm=k.prodName||k.q,c=coreColor();
   if(k.cat==='베이스')return{id:'powder',need:'파우더',types:['파우더'],area:'베이스',after:'base',
@@ -1621,14 +1661,15 @@ function pairRule(k){
 function pairSugs(rule,q){
   const own=S.shelf.items.filter(x=>rule.types.includes(x.item)).map(x=>[shelfName(x),'내 화장대']);
   const s=q.trim(),low=s.toLowerCase();
-  const rk=s?RANK.filter(r=>r[0].toLowerCase().includes(low)||r[2]&&low.includes(r[2].toLowerCase())).map(r=>[r[0],'올리브영 랭킹']):[];
+  // ranked products only when the name matches, or the brand matches and it is the right category
+  const rk=s?RANK.filter(r=>r[0].toLowerCase().includes(low)||r[2]&&low.includes(r[2].toLowerCase())&&r[1]===rule.area&&rule.types.some(ty=>r[0].includes(ty.replace('립라이너','라이너')))).map(r=>[r[0],'올리브영 랭킹']):[];
   const list=[...own.filter(([n])=>!s||n.toLowerCase().includes(low)),...rk];
-  if(s&&!list.some(([n])=>n===s))list.push([s,'직접 입력']);
+  if(s&&!list.some(([n])=>n===s))list.unshift([s,'입력한 이름 그대로']);
   return list.slice(0,6);
 }
 R.c2=()=>{const k=S.core,known=k.haveManual?null:shelfFor(...HAVE_TYPES[k.cat]);
  const qa=(q,why,opts,val,act)=>`<div class="qa"><div class="ai-row"><span class="ava">${ic('spark',16)}</span><div class="msg ai">${q}</div></div><small class="why">${why}</small>
-   ${val?`<div class="msg me">${esc(val)}</div>`:''}<div class="chips">${opts.map(o=>`<button class="chip" data-act="${act}" data-v="${o}" aria-pressed="${val===o}">${o}</button>`).join('')}</div></div>`;
+   <div class="chips">${opts.map(o=>`<button class="chip" data-act="${act}" data-v="${o}" aria-pressed="${val===o}">${o}</button>`).join('')}</div>${val?`<div class="msg me">${esc(val)}</div>`:''}</div>`;
  // A vanity match is offered, not assumed: the user decides whether the look builds on it.
  const KNOWN_OPTS=[['yes','네, 함께 쓰는 방법 알려주세요'],['no','아니요, 관심 제품만 볼래요'],['other','다른 제품이랑 쓸래요']];
  const pickedKnown=KNOWN_OPTS.find(([v])=>v===k.useKnown),rule=pairRule(k);
@@ -1637,13 +1678,14 @@ R.c2=()=>{const k=S.core,known=k.haveManual?null:shelfFor(...HAVE_TYPES[k.cat]);
   ${aiNote('단계적 입력','나머지는 온보딩에서 알려주신 추구미·퍼스널컬러·화장대·고민·얼굴 분석으로 채울게요.')}
   ${qa('어떤 자리에서 주로 쓰고 싶으세요?','자리마다 바르는 양과 범위가 달라져요',OCC,k.occ,'cOcc')}
   ${k.occ&&known?`<div class="qa"><div class="ai-row"><span class="ava">${ic('spark',16)}</span><div class="msg ai">화장대에 있는 <b>${esc(known)}</b>도 있네요. 이 제품과 함께 쓰는 방법으로 알려드릴까요?</div></div><small class="why">가진 제품과 섞어 쓰면 새로 살 것이 줄어들어요</small>
-   ${pickedKnown?`<div class="msg me">${pickedKnown[1]}</div>`:''}<div class="chips">${KNOWN_OPTS.map(([v,l])=>`<button class="chip" data-act="cUseKnown" data-v="${v}" aria-pressed="${k.useKnown===v}">${l}</button>`).join('')}</div></div>`:''}
+   <div class="chips">${KNOWN_OPTS.map(([v,l])=>`<button class="chip" data-act="cUseKnown" data-v="${v}" aria-pressed="${k.useKnown===v}">${l}</button>`).join('')}</div>${pickedKnown?`<div class="msg me">${pickedKnown[1]}</div>`:''}</div>`:''}
   ${k.occ&&!known?qa(`지금 쓰는 ${HAVE_Q[k.cat]}가 있나요?`,'있는 제품은 살려서 새 제품과 섞어 쓰는 방법을 알려드려요',HAVE[k.cat],k.have,'cHave'):''}
   ${k.occ&&k.have&&rule?`<div class="qa"><div class="ai-row"><span class="ava">${ic('spark',16)}</span><div class="msg ai">${esc(rule.why)}<br><b>${esc(rule.q)}</b></div></div><small class="why">화장대 사진에서 못 찾은 제품도 여기서 더할 수 있어요</small>
-   ${k.pair&&k.pair.done?`<div class="msg me">${k.pair.item?`${esc(k.pair.item)} 있어요`:'없어요, 없이 시작할게요'}</div>${k.pair.item?'':`<div class="ai-row"><span class="ava">${ic('spark',16)}</span><div class="msg ai">${esc(rule.noneMsg)}</div></div>`}`:''}
+   <div class="chips"><button class="chip" data-act="cPairYes" aria-pressed="${!!(k.pair&&(k.pair.typing||k.pair.item))}">있어요, 입력할게요</button><button class="chip" data-act="cPairNo" aria-pressed="${!!(k.pair&&k.pair.done&&!k.pair.item)}">없어요, 없이 시작할게요</button></div>
    ${k.pair&&k.pair.typing?`<div class="pairbox"><input id="pairq" placeholder="${esc(rule.need)} 이름 검색 (예: 브랜드 + 제품명)" value="${esc(k.pair.q||'')}" autocomplete="off" aria-label="${esc(rule.need)} 검색">
-     <div class="pairsug" id="pairsug">${pairSugHTML(rule,k.pair.q||'')}</div></div>`
-    :`<div class="chips"><button class="chip" data-act="cPairYes" aria-pressed="${!!(k.pair&&k.pair.item)}">있어요, 입력할게요</button><button class="chip" data-act="cPairNo" aria-pressed="${!!(k.pair&&k.pair.done&&!k.pair.item)}">없어요, 없이 시작할게요</button></div>`}</div>`:''}
+     <div class="pairsug" id="pairsug">${pairSugHTML(rule,k.pair.q||'')}</div></div>`:''}
+   ${k.pair&&k.pair.done?(k.pair.item?`<div class="msg me">${esc(k.pair.item)} 있어요</div><div class="ai-row"><span class="ava">${ic('spark',16)}</span><div class="msg ai">좋아요. <b>${esc(k.pair.item)}</b>도 함께 쓰는 방법으로 보여드릴게요. 마이페이지 보유 제품에도 담아뒀어요.</div></div>`
+     :`<div class="msg me">없어요, 없이 시작할게요</div><div class="ai-row"><span class="ava">${ic('spark',16)}</span><div class="msg ai">${esc(rule.noneMsg)}</div></div>`):''}</div>`:''}
  </div>
  <div class="foot"><button class="cta" data-act="coreNext" ${k.occ&&k.have&&(!rule||k.pair&&k.pair.done)?'':'disabled'}>룩 만들기</button></div></div>`};
 const pairSugHTML=(rule,q)=>{const l=pairSugs(rule,q);return l.length?l.map(([n,src])=>`<button data-act="cPairPick" data-v="${esc(n)}"><b>${esc(n)}</b><small>${src}</small></button>`).join(''):`<small class="pairhint">${rule.types.includes('파우더')?'예: 이니스프리 노세범 미네랄 파우더':'제품 이름을 입력하면 골라서 넣을 수 있어요'}</small>`};
@@ -2169,6 +2211,7 @@ function bindScreen(){
     render();toast(`‘${name}’ 색상을 추가했어요`);
   });
   dev.querySelector('form[data-dirform]')?.addEventListener('submit',e=>{e.preventDefault();const t=String(new FormData(e.target).get('t')).trim();if(!t)return;applyDirFb(t.slice(0,20),dirKind(t))});
+  dev.querySelector('form[data-ownform]')?.addEventListener('submit',e=>{e.preventDefault();const d=new FormData(e.target),name=String(d.get('name')).trim();if(!name)return;S.owned=S.owned||[];S.owned.push({id:newId(),type:String(d.get('type')),name,src:'직접 추가'});S.ownAdding=false;render();toast(`‘${name}’을(를) 보유 제품에 담았어요`)});
   const pq=dev.querySelector('#pairq');
   if(pq)pq.addEventListener('input',()=>{S.core.pair.q=pq.value;const r=pairRule(S.core);if(r)dev.querySelector('#pairsug').innerHTML=pairSugHTML(r,pq.value)});
   const camv=dev.querySelector('#camv');if(camv&&camStream){camv.srcObject=camStream;camv.play().catch(()=>{})}
@@ -2251,9 +2294,14 @@ dev.addEventListener('click',e=>{
     case 'shelfRetake':S.shelf={...S.shelf,photo:null,file:null,state:'none',items:[],hl:null,editing:null,adding:null,note:''};render();break;
     case 'saveShelf':S.shelf.skipped=false;next('shelf');break;
     case 'cHaveManual':S.core.haveManual=true;S.core.have=null;render();break;
+    case 'openMy':go('my');break;
+    case 'closeMy':S.ownAdding=false;go('home','back');break;
+    case 'ownAdd':S.ownAdding=true;render();break;
+    case 'ownCancel':S.ownAdding=false;render();break;
+    case 'ownDel':{if(el.dataset.f==='shelf'){S.shelf.items=S.shelf.items.filter(x=>x.id!==v)}else{S.owned=(S.owned||[]).filter(x=>x.id!==v)}render();toast('보유 제품에서 뺐어요');break}
     case 'cPairYes':S.core.pair={typing:true,q:'',done:false,item:null};render();dev.querySelector('#pairq')?.focus();break;
     case 'cPairNo':S.core.pair={typing:false,done:true,item:null};render();break;
-    case 'cPairPick':S.core.pair={typing:false,done:true,item:v};render();toast(`‘${v}’도 함께 쓰는 방법으로 보여드릴게요`);break;
+    case 'cPairPick':{const r=pairRule(S.core);S.core.pair={typing:false,done:true,item:v};if(r)addOwned(r.types[0],v);}render();toast(`‘${v}’도 함께 쓰는 방법으로 보여드릴게요`);break;
     case 'cUseKnown':{const k=S.core;
       if(v==='other'){Object.assign(k,{haveManual:true,useKnown:null,have:null})}
       else{k.useKnown=v;k.have=v==='yes'?shelfFor(...HAVE_TYPES[k.cat]):'없어요'}
@@ -2267,7 +2315,7 @@ dev.addEventListener('click',e=>{
     case 'cCancelAdd':S.core.addingProd=false;S.core.addingColor=false;render();break;
     case 'cColor':S.core.color=+v;render();break;
     case 'cOcc':S.core.occ=v;render();break;
-    case 'cHave':S.core.have=v;render();break;
+    case 'cHave':S.core.have=v;if(v!=='없어요')addOwned(HAVE_TYPES[S.core.cat][0],v.replace(' 있어요',''));render();break;
     case 'cVar':S.core.variant=v;S.core.tone=v.endsWith('+')?plusTone(v):lookOf(v).tone;render();break;
     case 'cRegenDir':S.core.ready=false;S.core.variant=null;S.core.regen++;render();later(()=>{S.core.ready=true;render()},1400);break;
     case 'cDirOpen':S.core.dirOpen=true;render();break;
@@ -2794,7 +2842,7 @@ function cloneState(s){try{return structuredClone(s)}catch(e){const c=JSON.parse
 const NAV=[
  ['S0','웰컴','s0'],['S1','기본 정보','s1'],['S2','선호 분위기','s2'],['S2b','퍼스널컬러','pc'],['S3a','메이크업 단계','rt'],['S3b','화장대 사진','shelf'],['3b-a','제품 분석 중','shelf-analyzing',1],['3b-b','분석 결과 확인','shelf-done',1],['S3c','평소 고민 대화','s3'],
  ['3c-a','고민 모으는 중','s3-collect',1],['3c-b','정리 중 로딩','s3-loading',1],['3c-c','정리된 고민 시트','s3-result',1],['3c-d','인식 실패 재질문','s3-fail',1],
- ['S4','얼굴 사진','s4'],['4-a','분석 완료','s4-done',1],['S6','완료 요약','s6'],['홈','검색 홈','home'],['홈-a','검색 + 인기 순위','search',1],
+ ['S4','얼굴 사진','s4'],['4-a','분석 완료','s4-done',1],['S6','완료 요약','s6'],['홈','검색 홈','home'],['홈-a','검색 + 인기 순위','search',1],['마이','마이페이지 · 보유 제품','my'],
  ['#','핵심 씬 스케치'],
  ['C1','제품 확인 · 명확화','c1'],['C2','단계적 질문','c2'],['C3','선호 비교','c3'],['C4','단계별 룩 + 영상','c4'],['C5','구매 결정','c5'],['C6','최저가','c6'],
 ];
