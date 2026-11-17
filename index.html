@@ -533,6 +533,14 @@ h1.title{margin:0;font-size:24px;line-height:1.36;font-weight:800;letter-spacing
 .cmpgrid .cr.gone{opacity:.5;text-decoration:line-through}
 .dir .dwhy{font-size:11.5px;line-height:1.45;color:var(--ink-2);background:var(--sand);border-radius:8px;padding:5px 7px}
 .dir .dwhy i{font-style:normal;font-weight:800;color:var(--rose-deep);margin-right:3px}
+.usephoto{display:flex;align-items:center;gap:10px;background:var(--rose-deep);color:var(--on-accent);border-radius:14px;padding:10px 12px;cursor:pointer;transition:transform .12s,box-shadow .15s}
+.usephoto:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(47,107,255,.3)}
+.usephoto>span{flex:1;display:flex;flex-direction:column;gap:1px}
+.usephoto b{font-size:14px;font-weight:800}
+.usephoto small{font-size:11.5px;opacity:.85}
+.usephoto>.ic:last-child{transform:rotate(-90deg)}
+.usephoto.busy{background:var(--rose-tint);color:var(--ink);cursor:default}
+.usephoto.busy .spin{width:22px;height:22px;border-width:2.5px;flex:none}
 .trymood{display:flex;flex-direction:column;gap:6px}
 .tm-l{font-size:12.5px;font-weight:800;color:var(--ink)}
 .tm-l small{font-weight:500;color:var(--ink-3);font-size:11px;margin-left:4px}
@@ -1885,7 +1893,8 @@ R.c3=()=>{const k=S.core,c=coreColor()[1],deep=deepen(c);
  const dirs=lookDirs();
  return `<div class="scr">${statusBar()}${coreTop('방향 고르기')}
  <div class="body">
-  ${aiNote('선호 비교',k.newMood?`A는 평소 추구미, B는 새로 더한 ${lookTag(k.dirs[1])} 분위기예요.`:k.dirFb?`‘${esc(k.dirFb)}’ 의견을 반영했어요.`:`추구미 ${S.moods.map(id=>lookTag(id)).join(' ')} 기준 두 가지 방향이에요.${ownPhoto()?' 내 사진에 입혔어요.':''}`)}
+  ${ownPhoto()?aiNote('선호 비교',k.newMood?`A는 평소 추구미, B는 새로 더한 ${lookTag(k.dirs[1])} 분위기예요.`:k.dirFb?`‘${esc(k.dirFb)}’ 의견을 반영했어요.`:`추구미 ${S.moods.map(id=>lookTag(id)).join(' ')} 기준 두 가지 방향이에요.${ownPhoto()?' 내 사진에 입혔어요.':''}`):S.photoState==='analyzing'?`<div class="usephoto busy" role="status"><span class="spin"></span><span><b>얼굴 사진을 분석하고 있어요</b><small>끝나면 두 방향을 내 얼굴에 입혀서 보여드려요</small></span></div>`
+   :`<label class="usephoto" for="c3file" tabindex="0">${ic('camera',20)}<span><b>내 얼굴 사진으로 비교하기</b><small>그림 대신 내 사진에 두 방향 화장을 입혀 보여드려요</small></span>${ic('chevD',16,2)}</label><input type="file" id="c3file" accept="image/*" hidden>`}
   <h1 class="title">어느 쪽이 더 끌리세요?</h1>
   <div class="dirs">${dirs.map((v,i)=>`<button class="dir" data-act="cVar" data-v="${v}" aria-pressed="${k.variant===v}"><span class="fv">${f(v)}${ownPhoto()?'<em class="fv-tag">내 사진</em>':''}</span><span class="ck">${ic('check',13,2.6)}</span><b>${'AB'[i]}. ${lookName(v)}</b><span class="dmeta2">${(m=>`난이도 ${'●'.repeat(m.lv)}${'○'.repeat(3-m.lv)} · 약 ${m.min}분`)(dirMeta(v))}</span>
     <span class="fxtags">${moodFx(v).tags.slice(0,4).map(x=>`<i>${x}</i>`).join('')}</span>
@@ -2364,6 +2373,9 @@ function bindScreen(){
   const pq=dev.querySelector('#pairq');
   if(pq)pq.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();dev.querySelector('[data-act=cPairEnter]').click()}});
   if(pq)pq.addEventListener('input',()=>{S.core.pair.q=pq.value;const r=pairRule(S.core);if(r)dev.querySelector('#pairsug').innerHTML=pairSugHTML(r,pq.value)});
+  const c3f=dev.querySelector('#c3file');
+  if(c3f){c3f.addEventListener('change',()=>{const f=c3f.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{S.photo=rd.result;S.photoFile=f;S.photoDims={w:im.naturalWidth||1,h:im.naturalHeight||1};analyze();if(S.screen==='c3')render()};im.src=rd.result};rd.readAsDataURL(f)});
+   dev.querySelector('label[for="c3file"]').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();c3f.click()}})}
   const camv=dev.querySelector('#camv');if(camv&&camStream){camv.srcObject=camStream;camv.play().catch(()=>{})}
   if(S.screen==='s4'&&S.photoState==='done'&&S.photo&&S.photo!=='demo'&&!(S.faceTraits&&S.faceTraits.report)&&!S.reportState&&!S.preview)fetchReport();
   bindCoverflow();
@@ -2563,7 +2575,7 @@ async function fetchReport(){
   for(let i=0;i<2&&!rep&&!aiOff;i++){try{const d=await aiJson(REPORT_PROMPT(),{images:[S.photoFile],tier:'default'});rep=normReport(d&&d.report||d,S.faceTraits&&S.faceTraits.face);if(!rep)S.reportErr='형식 오류'}catch(e){S.reportErr=(e&&(e.code||e.message))||'오류';if(OFF_CODES.includes(e&&e.code))aiOff=true}}
   if(S.photo!==photo)return;
   if(rep){S.faceTraits={...(S.faceTraits||{eyes:rep.eyeShape||'눈매',face:rep.shape}),report:rep};S.reportState=null}else S.reportState='fail';
-  if(S.screen==='s4')render();
+  if(S.screen==='s4'||S.screen==='c3')render();
 }
 function normFace(d){
   if(!d||d.found===false)return{found:false};
@@ -2735,7 +2747,7 @@ async function analyze(){
   let r=null;
   if(S.photoFile){try{r=normFace(await aiJson(FACE_PROMPT,{images:[S.photoFile],tier:'default'}))}catch(e){if(OFF_CODES.includes(e&&e.code))aiOff=true}}
   if(S.photo!==photo)return;
-  if(r&&r.found===false){Object.assign(S,{photo:null,photoFile:null,photoState:'none'});if(S.screen==='s4')render();toast('얼굴을 찾지 못했어요. 정면 사진으로 다시 올려주세요');return}
+  if(r&&r.found===false){Object.assign(S,{photo:null,photoFile:null,photoState:'none'});if(S.screen==='s4'||S.screen==='c3')render();toast('얼굴을 찾지 못했어요. 정면 사진으로 다시 올려주세요');return}
   if(!r&&S.photoFile){const lm=await detectLocal(S.photoFile,S.photoDims||{w:1,h:1});if(S.photo!==photo)return;if(lm)r={lm,traits:null}}
   if(!r){
     await wait(1900);if(S.photo!==photo)return;
