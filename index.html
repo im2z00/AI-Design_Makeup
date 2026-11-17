@@ -1266,7 +1266,7 @@ function topBar(step,skippable,skipLabel='건너뛰기'){
   return `<div class="top">
    <button class="iconbtn" data-act="back" aria-label="뒤로가기">${ic('back',24,2)}</button>
    <div class="prog-wrap" role="progressbar" aria-valuemin="1" aria-valuemax="8" aria-valuenow="${step}" aria-label="온보딩 진행 · ${ch[2]}"><div class="prog">${segs}</div><small>${ch[2]} · ${step} / 8</small></div>
-   ${S.myBack?`<span class="top-r">${skippable&&!S.returnTo?`<button class="skip" data-act="skip">${skipLabel}</button>`:''}<button class="tomy" data-act="toMy" aria-label="마이페이지로">${ic('user',15,2)}${skippable&&!S.returnTo?'':'마이페이지'}</button></span>`:skippable&&!S.returnTo?`<button class="skip" data-act="skip">${skipLabel}</button>`:'<span></span>'}
+   ${S.myBack?(S.returnTo!=='s6'&&S.screen!=='s6'?`<button class="skip" data-act="stepNext">건너뛰기</button>`:'<span></span>'):skippable&&!S.returnTo?`<button class="skip" data-act="skip">${skipLabel}</button>`:'<span></span>'}
   </div>`;
 }
 const guide=t=>`<div class="guide">${ic('spark',18)}<span>${t}</span></div>`;
@@ -2629,6 +2629,7 @@ dev.addEventListener('click',e=>{
     case 'myToggle':S.myOpen=S.myOpen===v?'':v;S.ownAdding=false;render();break;
     case 'myEdit':S.returnTo='my';S.myBack=true;go(v);break;
     case 'myRestart':{const keep={looks:S.looks||[],owned:S.owned||[]};S=Object.assign(fresh(),keep,{myBack:true});go('s1');toast('처음부터 다시 입력해요 · 저장한 룩은 그대로예요');break}
+    case 'stepNext':{const i=ORDER.indexOf(S.screen);if(i>=0&&i<ORDER.length-1)go(ORDER[i+1]);break}
     case 'toMy':S.returnTo=null;go('my','back');break;
     case 'tabHome':S.ownAdding=false;go('home','back');break;
     case 'tabLooks':go('looks');break;
