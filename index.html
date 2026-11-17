@@ -543,6 +543,9 @@ h1.title{margin:0;font-size:24px;line-height:1.36;font-weight:800;letter-spacing
 .tm-sw i:first-child{margin-left:0}
 .tm-act{display:flex;align-items:center;gap:10px}
 .sbtn:disabled{opacity:.4}
+/* The phone screen is always light: dark-mode viewers otherwise get black input boxes. Zero specificity, so styled fields keep their own look. */
+#device{color-scheme:light}
+:where(#device) :where(input:not([type=color]):not([type=file]):not([type=checkbox]):not([type=radio]),textarea,select){background-color:#FFFFFF;color:#1B1F27}
 .tm-act .sbtn{height:38px;padding:0 14px}
 .fxtags{display:flex;flex-wrap:wrap;gap:3px}
 .fxtags i{font-style:normal;font-size:10.5px;font-weight:800;color:var(--rose-deep);background:var(--rose-tint);border-radius:6px;padding:1px 5px}
