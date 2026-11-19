@@ -1649,7 +1649,7 @@ R.my=()=>{
   ${drawer('face','look','얼굴 분석',S.photoState==='done'?(fr?`${frType(fr)} · ${fr.shape}`:S.faceTraits?`${esc(S.faceTraits.eyes)} · ${esc(S.faceTraits.face)}`:'분석 완료'):'미입력',
      S.photoState==='done'?`<dl class="dr-dl">${fr?`<dt>이미지 유형</dt><dd>${frType(fr)}</dd><dt>얼굴형</dt><dd>${fr.shape}</dd><dt>눈</dt><dd>${[fr.eyeShape,fr.lid,'눈꼬리 '+fr.tail].filter(Boolean).join(' · ')}</dd><dt>입술</dt><dd>${fr.lipThick} · ${fr.lipRatio}</dd>`:`<dt>눈매</dt><dd>${esc(S.faceTraits?S.faceTraits.eyes:'-')}</dd><dt>얼굴형</dt><dd>${esc(S.faceTraits?S.faceTraits.face:'-')}</dd>`}</dl>`:none('사진을 올리면 바를 위치와 범위를 얼굴에 맞춰요'),'s4',S.photoState==='done'?'사진·리포트 보기':'사진 올리기')}
   </div>
-  <button class="my-reedit" data-act="myRestart"><span class="dr-ic">${ic('refresh',18)}</span><span class="dr-t"><b>내 정보 초기화하기</b><small>입력한 정보를 지우고 1단계부터 다시 시작해요</small></span>${ic('chevR',16,2)}</button>
+  <button class="my-reedit" data-act="myRestart"><span class="dr-ic">${ic('refresh',18)}</span><span class="dr-t"><b>내 정보 초기화하기</b><small>입력한 정보를 지우고 첫 화면부터 다시 시작해요</small></span>${ic('chevR',16,2)}</button>
  </div>
  ${tabbar('my')}</div>`};
 R.home=()=>{
@@ -2629,7 +2629,7 @@ dev.addEventListener('click',e=>{
     case 'openMy':go('my');break;
     case 'myToggle':S.myOpen=S.myOpen===v?'':v;S.ownAdding=false;render();break;
     case 'myEdit':S.returnTo='my';S.myBack=true;go(v);break;
-    case 'myRestart':{const keep={looks:S.looks||[],owned:S.owned||[]};S=Object.assign(fresh(),keep,{myBack:true});go('s1');toast('정보를 초기화했어요 · 저장한 룩은 그대로예요');break}
+    case 'myRestart':{const keep={looks:S.looks||[],owned:S.owned||[]};S=Object.assign(fresh(),keep);go('s0');toast('정보를 초기화했어요 · 저장한 룩은 그대로예요');break}
     case 'stepNext':{const i=ORDER.indexOf(S.screen);if(i>=0&&i<ORDER.length-1)go(ORDER[i+1]);break}
     case 'toMy':S.returnTo=null;go('my','back');break;
     case 'tabHome':S.ownAdding=false;go('home','back');break;
