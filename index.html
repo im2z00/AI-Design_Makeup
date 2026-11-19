@@ -802,6 +802,9 @@ a.pv{text-decoration:none;color:#fff}
 .bx.pop-in{animation:pop .3s both}
 .shelf-sum{margin:-4px 0 0;font-size:14.5px;font-weight:800}
 .shelf-sum em{font-style:normal;color:var(--rose-deep)}
+.ai-off{margin:0;padding:8px 10px;border-radius:10px;background:#FFF4E5;color:#8A4B00;font-size:12px;font-weight:700;line-height:1.5}
+.qtip{margin:0;display:flex;align-items:flex-start;gap:5px;padding:8px 10px;border-radius:10px;background:var(--sand);color:var(--ink-2);font-size:12px;font-weight:600;line-height:1.5}
+.qtip .ic{flex:none;margin-top:1px}
 .shelf-note{margin:-10px 0 0;font-size:12px;color:var(--ink-3);line-height:1.5}
 .ssec-t{font-size:12.5px;font-weight:800;color:var(--ink-2);margin-bottom:-8px}
 .ssec{display:flex;flex-direction:column;gap:6px}
@@ -1534,7 +1537,7 @@ R.shelf=()=>{const sh=S.shelf,st=sh.state;
   <input type="file" id="shelffile" accept="image/*" hidden><input type="file" id="shelfcam" accept="image/*" capture="environment" hidden>
   <div class="trust">${ic('lock',16)}<span>사진은 제품 인식에만 쓰이고 저장하지 않아요.</span></div>`
   :`<div class="shelf-photo small" ${img?'':'hidden'}><div class="wrap">${img}${st==='analyzing'?'<div class="scanline"></div>':''}${boxes}</div></div>
-  ${st==='analyzing'?`<p class="anal-txt" role="status">제품과 색상을 찾고 있어요…<br><small>라벨과 색을 꼼꼼히 보느라 조금 걸릴 수 있어요</small></p>`:shelfList()}`}
+  ${st==='analyzing'?`<p class="anal-txt" role="status">${sh.step||'제품과 색상을 찾고 있어요…'}<br><small>라벨과 색을 꼼꼼히 보느라 조금 걸릴 수 있어요</small></p>`:shelfList()}`}
  </div>
  <div class="foot tall"><button class="cta" data-act="saveShelf" ${st==='done'&&!sh.editing&&!sh.adding?'':'disabled'}>${ctaLabel(st==='done'?'이대로 저장할게요':'다음')}</button>
   ${S.returnTo||st!=='none'?'':`<button class="sublink" data-act="skip">나중에 할게요</button>`}</div></div>`};
@@ -1553,7 +1556,7 @@ function shelfList(){
   const inR=S.routine.map((t,i)=>{const xs=items.filter(x=>x.item===t&&x.conf!=='low');
     return `<div class="ssec"><h4>${i+1}. ${t} <span>${groupOf(t)}</span></h4>${xs.length?xs.map(row).join(''):sh.adding===t?shelfForm(null,t):`<div class="sempty"><span>아직 찾은 제품이 없어요</span><button data-act="shelfAdd" data-v="${t}">+ 추가</button></div>`}</div>`}).join('');
   const others=items.filter(x=>x.conf!=='low'&&!S.routine.includes(x.item));
-  return `<p class="shelf-sum">${items.length}개 찾았어요${lows.length?` · <em>${lows.length}개는 확인이 필요해요</em>`:''}</p>${sh.note?`<p class="shelf-note">${sh.note}</p>`:''}
+  return `<p class="shelf-sum">${items.length}개 찾았어요${lows.length?` · <em>${lows.length}개는 확인이 필요해요</em>`:''}</p>${sh.tips?`<p class="qtip">${ic('camera',14)}${esc(sh.tips)}</p>`:''}${sh.note?`<p class="ai-off">${esc(sh.note)}</p>`:''}
   ${lows.length?`<div class="ssec"><h4 class="warn">확인 필요</h4>${lows.map(row).join('')}</div>`:''}
   <div class="ssec-t">내 순서별 제품</div>${inR}
   ${others.length?`<div class="ssec"><h4>루틴에 없던 제품</h4>${others.map(row).join('')}</div>`:''}
@@ -1584,7 +1587,7 @@ R.s4=()=>{
    <div class="pbtns"><button class="pbtn pri" data-act="camera">${ic('camera',20)}사진 찍기</button><label class="pbtn" for="file" tabindex="0">${ic('image',20)}앨범에서 선택</label></div>
    <input type="file" id="file" accept="image/*" hidden><input type="file" id="camfile" accept="image/*" capture="user" hidden>`
   :`<div class="photo">${img}${st==='analyzing'?'<div class="scanline"></div>':overlay()}${st==='done'?`<span class="donechip">${ic('check',14,2.6)}분석 완료</span>`:''}</div>
-   ${st==='analyzing'?`<p class="anal-txt" role="status">눈매·코·입술·얼굴형 위치를 찾고 있어요…</p>`:`<div class="found">${S.faceTraits?`<span>눈매 · ${esc(S.faceTraits.eyes)}</span><span>얼굴형 · ${esc(S.faceTraits.face)}</span>`:'<span>눈매</span><span>코</span><span>입술</span><span>얼굴형</span>'}</div>${st==='done'?repButton():''}${S.faceNote?`<p class="shelf-note" style="text-align:center;margin:-8px 0 0">${S.faceNote}</p>`:''}
+   ${st==='analyzing'?`<p class="anal-txt" role="status">눈매·코·입술·얼굴형 위치를 찾고 있어요…</p>`:`<div class="found">${S.faceTraits?`<span>눈매 · ${esc(S.faceTraits.eyes)}</span><span>얼굴형 · ${esc(S.faceTraits.face)}</span>`:'<span>눈매</span><span>코</span><span>입술</span><span>얼굴형</span>'}</div>${st==='done'?repButton():''}${S.photoTips?`<p class="qtip">${ic('camera',14)}${esc(S.photoTips)}</p>`:''}${S.faceNote?`<p class="ai-off">${esc(S.faceNote)}</p>`:''}
    <div class="plink"><button data-act="retake">다른 사진으로 바꾸기</button><button data-act="delPhoto">사진 삭제</button></div>`}`}
   <div class="trust">${ic('lock',16)}<span>사진은 얼굴 특징 분석에만 쓰이고 외부에 공개되지 않아요. 언제든 삭제할 수 있어요.</span></div>
  </div>
@@ -2926,7 +2929,8 @@ async function fetchReport(){
   if(S.photo!==photo)return;
   if(!S.photoFile){S.reportErr=S.reportErr||'사진 파일 없음';S.reportState='fail';if(S.screen==='s4')render();return}
   let rep=null;
-  for(let i=0;i<2&&!rep&&!aiOff;i++){try{const d=await aiJson(REPORT_PROMPT(),{images:[S.photoFile],tier:'default'});rep=normReport(d&&d.report||d,S.faceTraits&&S.faceTraits.face);if(!rep)S.reportErr='형식 오류'}catch(e){S.reportErr=(e&&(e.code||e.message))||'오류';if(OFF_CODES.includes(e&&e.code))aiOff=true}}
+  for(let i=0;i<2&&!rep&&!aiOff;i++){try{const d=await aiJson(REPORT_PROMPT()+metricsHint(),{images:[S.photoFile],tier:'default'});rep=normReport(d&&d.report||d,S.faceTraits&&S.faceTraits.face);if(!rep)S.reportErr='형식 오류'}catch(e){S.reportErr=(e&&(e.code||e.message))||'오류';markAi(e);if(OFF_CODES.includes(e&&e.code))aiOff=true;if(aiDown)break}}
+  if(rep&&S.facePts){const mr=measuredReport(faceMetrics(S.facePts));MEASURED_KEYS.forEach(k=>{if(mr[k])rep[k]=mr[k]})}
   if(S.photo!==photo)return;
   if(rep){S.faceTraits={...(S.faceTraits||{eyes:rep.eyeShape||'눈매',face:rep.shape}),report:rep};S.reportState=null}else S.reportState='fail';
   if(S.screen==='s4'||S.screen==='c3')render();
@@ -2965,7 +2969,8 @@ function lmReport(lm){
    spread:lv(g,.85,1.2,['구심형','균형형','원심형']),gap:lv(g,.85,1.2,S3),eyeSize:lv(eyeW/2/fw,.19,.24,['작은 편','보통','큰 편']),
    foreheadH:null,nose:null,noseWidth:lv(N.rx*2/Math.max(gap,1),.85,1.15,S3),
    lipWidth:lv(M.rx*2/Math.max(R.x-L.x,1),.7,.9,S3),cheekLen:null,chin:null,
-   tail:null,lid:null,lidArea:null,lipThick:null,lipRatio:null,corner:null,foreheadShape:null,browShape:null,browThick:null,noseBridge:null,cheekFull:null,cbFront:null,cbSide:null,jawShape:null,ai:false};
+   tail:null,lid:null,lidArea:null,lipThick:null,lipRatio:null,corner:null,foreheadShape:null,browShape:null,browThick:null,noseBridge:null,cheekFull:null,cbFront:null,cbSide:null,jawShape:null,ai:false,
+   ...(S.facePts?(()=>{const m=faceMetrics(S.facePts),r=measuredReport(m);return{...r,thirds:[t3[0],1,Math.round(m.low2mid*100)/100],measured:true}})():{})};
 }
 const DEMO_REPORT={shape:'계란형',thirds:[1,1,.92],curve:-.45,mature:-.3,eyeShape:'둥근 눈매',tail:'수평',lid:'속쌍',eyeSize:'보통',gap:'보통',lidArea:'넓은 편',nose:'보통',lipThick:'보통',lipRatio:'윗입술이 얇음',corner:'올라감',spread:'균형형',foreheadH:'보통',foreheadShape:'둥근 편',browShape:'일자',browThick:'보통',noseBridge:'보통',noseWidth:'보통',lipWidth:'보통',cheekFull:'도톰한 편',cheekLen:'보통',cbFront:'도톰한 편',cbSide:'보통',jawShape:'둥근 턱선',chin:'짧은 편',ai:true};
 const frType=r=>`${r.curve<=0?'곡선':'직선'} · ${r.mature<=0?'동안':'성숙'}형`;
@@ -3079,6 +3084,69 @@ function refineLm(lm,dims){
   const mid=(P.leftEye.cy+P.lips.cy)/2;if(Math.abs(P.face.cy-mid)>.35*d)out.face.cy=(mid-.08*d)/H*100;
   return out;
 }
+// ---- photo quality (size, light, blur) measured on a small copy of the photo
+async function photoQuality(src){
+  try{
+    const im=new Image();im.src=typeof src==='string'?src:URL.createObjectURL(src);await im.decode();
+    const s=Math.min(1,256/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');
+    c.width=Math.max(8,Math.round(im.naturalWidth*s));c.height=Math.max(8,Math.round(im.naturalHeight*s));
+    const g=c.getContext('2d');g.drawImage(im,0,0,c.width,c.height);
+    const d=g.getImageData(0,0,c.width,c.height).data,W=c.width,H=c.height,L=new Float32Array(W*H);let sum=0;
+    for(let i=0;i<W*H;i++){L[i]=.299*d[i*4]+.587*d[i*4+1]+.114*d[i*4+2];sum+=L[i]}
+    let v=0,n=0;for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){const i=y*W+x,lap=4*L[i]-L[i-1]-L[i+1]-L[i-W]-L[i+W];v+=lap*lap;n++}
+    return{w:im.naturalWidth,h:im.naturalHeight,mean:sum/(W*H),sharp:n?v/n:0};
+  }catch(e){return null}
+}
+function qualityIssues(q){const t=[];if(!q)return t;if(Math.min(q.w,q.h)<480)t.push('해상도가 낮아요');if(q.mean<70)t.push('사진이 어두워요');if(q.mean>215)t.push('빛이 너무 강해요');if(q.sharp<40)t.push('사진이 흐려요');return t}
+// AI connection state: set when the AI could not be reached at all (no key on the public link, or not allowed here)
+const AI_DOWN_CODES=['unavailable','upstream_error','images_unavailable',...['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed','session_expired']];
+let aiDown=false;
+const markAi=e=>{if(e&&AI_DOWN_CODES.includes(e.code))aiDown=true};
+
+// ---- face measurements from the 68 points (rolled level first), used by the report and given to the AI as facts
+function faceMetrics(P){
+  const d=S.photoDims||{w:100,h:100},p=P.map(([x,y])=>({x:x*d.w/100,y:y*d.h/100}));
+  const mid=(a,b)=>({x:(p[a].x+p[b].x)/2,y:(p[a].y+p[b].y)/2}),le=mid(36,39),re=mid(42,45),roll=Math.atan2(re.y-le.y,re.x-le.x);
+  const c=Math.cos(-roll),s=Math.sin(-roll),q=p.map(o=>({x:o.x*c-o.y*s,y:o.x*s+o.y*c})),Y=i=>q[i].y,X=i=>q[i].x;
+  const D=(a,b)=>Math.hypot(q[a].x-q[b].x,q[a].y-q[b].y);
+  const eW=(D(36,39)+D(42,45))/2,eH=((D(37,41)+D(38,40))+(D(43,47)+D(44,46)))/4;
+  const faceW=D(1,15),browY=(Math.min(Y(18),Y(19),Y(20))+Math.min(Y(23),Y(24),Y(25)))/2,midH=Y(33)-browY,lowH=Y(8)-Y(33),faceH=Y(8)-browY;
+  const lipH=Y(57)-Y(51),upLip=Y(62)-Y(51),loLip=Y(57)-Y(66),mW=D(48,54);
+  const arch=(a,b,m)=>((Y(a)+Y(b))/2-Math.min(...m.map(Y)))/eW;
+  const centerX=(X(0)+X(16))/2,yaw=(X(30)-centerX)/faceW;
+  return{eW,eyeAsp:eH/eW,tilt:((Y(39)-Y(36))+(Y(42)-Y(45)))/2/eW,gap:D(39,42)/eW,eyeSize:eW/faceW,
+    faceRatio:faceH/faceW,low2mid:lowH/midH,jaw:D(5,11)/faceW,chinW:D(7,9)/faceW,
+    lipThick:lipH/mW,upLo:upLip/Math.max(loLip,.001),corner:((Y(62)+Y(66))/2-(Y(48)+Y(54))/2)/mW,
+    noseW:D(31,35)/D(39,42),mouthW:mW/D(39,42),browArch:(arch(17,21,[18,19,20])+arch(22,26,[23,24,25]))/2,
+    chinLen:(Y(8)-Y(57))/lowH,rollDeg:roll*180/Math.PI,yaw};
+}
+// measured values → report words (only what geometry can tell; lid/skin/cheek fullness stay with the AI)
+function measuredReport(m){
+  // cut-offs centred on what this detector measures for an average front-facing face (checked on reference photos)
+  const lv=(v,lo,hi,a)=>v<lo?a[0]:v>hi?a[2]:a[1];
+  const shape=m.jaw>.78?'각진형':m.faceRatio<.88?'둥근형':m.faceRatio>1.08?'긴형':m.chinW<.26&&m.jaw<.64?'하트형':'계란형';
+  return{shape,eyeShape:m.eyeAsp>.36?'둥근 눈매':m.eyeAsp<.24?'가로로 긴 눈매':'아몬드형 눈매',
+    tail:m.tilt>.16?'올라감':m.tilt<.03?'내려감':'수평',eyeSize:lv(m.eyeSize,.16,.2,['작은 편','보통','큰 편']),
+    gap:lv(m.gap,1.4,1.8,['좁은 편','보통','넓은 편']),spread:lv(m.gap,1.4,1.8,['구심형','균형형','원심형']),
+    lipThick:lv(m.lipThick,.26,.4,['얇은 편','보통','도톰한 편']),lipRatio:m.upLo<.4?'윗입술이 얇음':m.upLo>.75?'윗입술이 도톰함':'균형',
+    corner:m.corner>.1?'올라감':m.corner<0?'내려감':'수평',noseWidth:lv(m.noseW,.52,.75,['좁은 편','보통','넓은 편']),
+    lipWidth:lv(m.mouthW,1.15,1.5,['좁은 편','보통','넓은 편']),browShape:m.browArch<.15?'일자':m.browArch>.33?'각진 아치':'완만한 아치',
+    chin:lv(m.chinLen,.38,.54,['짧은 편','보통','긴 편']),jawShape:m.jaw>.78?'각진 턱선':m.jaw<.64?'둥근 턱선':'보통',
+    curve:Math.max(-1,Math.min(1,(m.jaw-.72)*6+(m.browArch<.15?.3:-.2))),mature:Math.max(-1,Math.min(1,(.3-m.eyeAsp)*6+(m.low2mid-.8)*2))};
+}
+const MEASURED_KEYS=['tail','eyeSize','gap','spread','lipThick','lipRatio','corner','noseWidth','lipWidth','browShape','chin'];
+function metricsHint(){
+  if(!S.facePts)return'';
+  const m=faceMetrics(S.facePts),r=measuredReport(m),f=n=>(Math.round(n*100)/100).toFixed(2);
+  return `
+
+아래는 이 사진에서 얼굴 점 68개를 찾아 기울기를 바로잡은 뒤 직접 잰 값이야. 이 측정과 어긋나는 판단은 하지 말고, 측정에 없는 것(쌍꺼풀, 눈두덩 면적, 볼살, 광대, 이마 모양, 피부)만 사진을 보고 판단해.
+- 눈 세로/가로 ${f(m.eyeAsp)} → ${r.eyeShape} / 눈꼬리 기울기 ${f(m.tilt)} (+면 바깥이 높음) → ${r.tail}
+- 미간/눈 가로 ${f(m.gap)} → ${r.gap} / 눈 가로/얼굴 폭 ${f(m.eyeSize)} → ${r.eyeSize}
+- 얼굴 길이(눈썹~턱)/광대 폭 ${f(m.faceRatio)}, 턱 폭/광대 폭 ${f(m.jaw)} → ${r.shape}에 가까움 / 하안부/중안부 ${f(m.low2mid)}
+- 입술 두께/입 너비 ${f(m.lipThick)} → ${r.lipThick} / 윗입술/아랫입술 ${f(m.upLo)} → ${r.lipRatio} / 입꼬리 ${f(m.corner)} → ${r.corner}
+- 콧볼/미간 ${f(m.noseW)} → ${r.noseWidth} / 눈썹 아치 ${f(m.browArch)} → ${r.browShape} / 턱 끝 길이 비율 ${f(m.chinLen)} → ${r.chin}`;
+}
 // Precise 68-point face landmarks, computed on the device (the photo is not uploaded for this).
 const FACEAPI='https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.15';
 let faceApiP=null;
@@ -3130,17 +3198,25 @@ async function analyze(){
   const photo=S.photo;
   Object.assign(S,{photoState:'analyzing',photoSkipped:false,faceLm:null,facePts:null,faceTraits:null,faceNote:'',reportState:null});render();
   let r=null;
-  const ptsP=S.photoFile?detect68(photo):Promise.resolve(null);
-  if(S.photoFile){try{r=normFace(await aiJson(FACE_PROMPT,{images:[S.photoFile],tier:'default'}))}catch(e){if(OFF_CODES.includes(e&&e.code))aiOff=true}}
-  const pts=await ptsP;
+  const [pts,q]=S.photoFile?await Promise.all([detect68(photo),photoQuality(photo)]):[null,null];
   if(S.photo!==photo)return;
-  if(pts){r=r&&r.found!==false?{...r,lm:lmFromPts(pts)}:{lm:lmFromPts(pts),traits:r&&r.traits||null};S.facePts=pts}
+  if(pts)S.facePts=pts;
+  if(S.photoFile){try{r=normFace(await aiJson(FACE_PROMPT+metricsHint(),{images:[S.photoFile],tier:'default'}))}catch(e){markAi(e);if(OFF_CODES.includes(e&&e.code))aiOff=true}}
+  if(S.photo!==photo)return;
+  if(pts){r=r&&r.found!==false?{...r,lm:lmFromPts(pts)}:{lm:lmFromPts(pts),traits:r&&r.traits||null};
+    const m=faceMetrics(pts),mr=measuredReport(m);
+    if(r.traits&&r.traits.report)MEASURED_KEYS.forEach(k=>{if(mr[k])r.traits.report[k]=mr[k]});
+    if(!r.traits){const rp=lmReport(lmFromPts(pts));r.traits={eyes:`${mr.eyeShape.replace(' 눈매','')} · 눈꼬리 ${mr.tail}`,face:mr.shape,report:rp}}
+    const iss=qualityIssues(q);if(m.eW<28)iss.push('얼굴이 작게 나왔어요');if(Math.abs(m.rollDeg)>10)iss.push('고개가 기울어져 있어요');if(Math.abs(m.yaw)>.07)iss.push('정면이 아니에요');
+    S.photoTips=iss.length?`${iss.join(' · ')}. 밝은 곳에서 정면으로 다시 찍으면 더 정확해요`:'';
+    if(aiDown)S.faceNote='AI 미연결 · 바를 위치와 눈매·입술·얼굴형 비율은 사진에서 직접 쟀어요. 쌍꺼풀·볼살 같은 항목은 비어 있어요';
+  }else S.photoTips=qualityIssues(q).length?`${qualityIssues(q).join(' · ')}. 밝은 곳에서 정면으로 다시 찍으면 더 정확해요`:'';
   if(r&&r.found===false){Object.assign(S,{photo:null,photoFile:null,photoState:'none'});if(S.screen==='s4'||S.screen==='c3')render();toast('얼굴을 찾지 못했어요. 정면 사진으로 다시 올려주세요');return}
   if(!r&&S.photoFile){const lm=await detectLocal(S.photoFile,S.photoDims||{w:1,h:1});if(S.photo!==photo)return;if(lm)r={lm,traits:null}}
   if(!r){
     await wait(1900);if(S.photo!==photo)return;
     r=S.photoFile?{lm:AVG_LM,traits:null}:{lm:DEMO_LM,traits:{eyes:'둥근 눈매',face:'계란형',report:DEMO_REPORT}};
-    if(S.photoFile)S.faceNote='AI 분석을 쓸 수 없는 환경이라 평균 위치로 표시했어요';
+    if(S.photoFile)S.faceNote='AI 미연결 · 얼굴도 찾지 못해 평균 위치로 표시했어요. 정면 사진으로 다시 올려 주세요';
   }
   if(S.photoFile&&r.lm!==AVG_LM&&!S.facePts)r.lm=refineLm(r.lm,S.photoDims||{w:1,h:1});
   Object.assign(S,{faceLm:r.lm,faceTraits:r.traits,photoState:'done',reportState:null});
@@ -3352,13 +3428,68 @@ function normShelf(d){
   return d.items.slice(0,12).map(x=>{const ok=Array.isArray(x&&x.box)&&x.box.length===4&&x.box.every(n=>typeof n==='number'&&isFinite(n));
     return{id:newId(),item:all.includes(x&&x.item)?x.item:'기타',name:String(x&&x.name||'').trim().slice(0,40),shade:String(x&&x.shade||'').trim().slice(0,24),hex:/^#[0-9a-f]{6}$/i.test(String(x&&x.hex||''))?x.hex:null,conf:x&&x.conf==='high'?'high':'low',box:ok?x.box.map(n=>Math.max(0,Math.min(100,n))):null}});
 }
+// crop one product out of the photo (with a margin) and enlarge it so small label text is readable
+async function cropBlob(file,box,pad=.18,minSide=720){
+  const bmp=await createImageBitmap(file),W=bmp.width,H=bmp.height;
+  let [l,t2,w,h]=box.map(v=>v/100);l=Math.max(0,l-w*pad);t2=Math.max(0,t2-h*pad);w=Math.min(1-l,w*(1+2*pad));h=Math.min(1-t2,h*(1+2*pad));
+  const sw=w*W,sh=h*H,sc=Math.min(4,Math.max(1,minSide/Math.max(sw,sh))),c=document.createElement('canvas');
+  c.width=Math.round(sw*sc);c.height=Math.round(sh*sc);const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(bmp,l*W,t2*H,sw,sh,0,0,c.width,c.height);
+  return await new Promise(r=>c.toBlob(r,'image/jpeg',.9));
+}
+const LABEL_PROMPT=list=>`사진 ${list.length}장은 화장대 사진에서 제품 하나씩을 잘라 크게 확대한 거야. 순서대로 1번부터 ${list.length}번이야. JSON 하나로만 답해.
+
+할 일
+- 각 사진의 라벨·용기 글자를 최대한 읽어서 브랜드와 제품명, 색상명(호수)을 정확히 적어.
+- name은 "브랜드명 + 제품명" 전체로 적어. 예: "롬앤 블러 퍼지 틴트", "클리오 킬커버 더 뉴 파운웨어 쿠션". 브랜드명을 빼거나 "○○" 같은 자리표시를 쓰지 마.
+- 읽은 글자가 영문이면 한국에서 쓰는 한글 제품명으로 적어(예: rom&nd → 롬앤, CLIO → 클리오).
+- 아래 '한국 인기 제품'에 있는 제품이면 그 이름을 글자 그대로 써.
+- 라벨이 안 보여도 용기 모양·로고로 확실히 알아보면 적고 conf를 "low"로 해. 전혀 모르겠으면 name은 "".
+- read에는 사진에서 실제로 읽은 글자를 그대로 적어(없으면 "").
+- shade 규칙: 라벨의 색상명·호수를 그대로. 안 보이면 내용물 색으로 가장 가까운 일반 색상명 뒤에 " (추정)". 색이 의미 없는 제품은 "".
+
+1차로 본 내용(틀릴 수 있어)
+${list.map((x,i)=>`${i+1}번: 종류 ${x.item}${x.name?`, 이름 추정 "${x.name}"`:''}${x.shade?`, 색상 추정 "${x.shade}"`:''}`).join('\n')}
+
+한국 인기 제품
+${RANK.map(r=>r[0]).join(', ')}
+
+형식 예시
+{"items":[{"i":1,"name":"롬앤 블러 퍼지 틴트","shade":"13 이브닝","read":"rom&nd BLUR FUDGE TINT 13","conf":"high"}]}`;
+// tidy a product name toward the ranking list, and a shade toward that product's official option names
+function canonShelf(x){
+  const norm=s=>String(s||'').toLowerCase().replace(/\s+/g,''),n=norm(x.name);
+  if(!n)return x;
+  const hit=RANK.findIndex(r=>{const rn=norm(r[0]);return rn===n||(r[2]&&n.includes(norm(r[2]))&&rn.length>4&&(rn.includes(n.replace(norm(r[2]),''))||n.includes(rn.replace(norm(r[2]),''))))});
+  if(hit<0)return x;
+  const out={...x,name:RANK[hit][0]},oy=OY_SHADES[String(hit+1)];
+  const num=(/(\d{2,3})/.exec(x.shade||'')||[])[1];
+  if(oy&&num){const s=oy.s.find(o=>(/^(\d{2,3})/.exec(o[0])||[])[1]===num);if(s)out.shade=s[0]}
+  return out;
+}
 async function analyzeShelf(){
-  const sh=S.shelf;Object.assign(sh,{state:'analyzing',items:[],note:'',hl:null,editing:null,adding:null});render();
+  const sh=S.shelf;Object.assign(sh,{state:'analyzing',items:[],note:'',tips:'',step:'',hl:null,editing:null,adding:null});render();
   let items=null;
-  if(sh.file){try{items=normShelf(await aiJson(SHELF_PROMPT,{images:[sh.file],tier:'default'}))}catch(e){if(OFF_CODES.includes(e&&e.code))aiOff=true}}
-  if(!items||!items.length){await wait(2600);items=SHELF_DEMO.map(x=>({...x,id:newId()}));if(sh.file)sh.note='AI 사진 분석을 쓸 수 없는 환경이라 예시 결과를 보여드려요. 실제 제품과 다르면 고쳐주세요.'}
+  if(!sh.file&&/^data:/.test(sh.photo||'')){try{sh.file=dataUrlBlob(sh.photo)}catch(e){}}
+  if(sh.file){
+    const q=await photoQuality(sh.file),iss=qualityIssues(q);sh.tips=iss.length?`${iss.join(' · ')}. 밝은 곳에서 라벨이 보이게 다시 찍으면 더 정확해요`:'';
+    try{items=normShelf(await aiJson(SHELF_PROMPT,{images:[sh.file],tier:'default'}))}catch(e){markAi(e);if(OFF_CODES.includes(e&&e.code))aiOff=true}
+    // pass 2: re-read up to 6 products up close (unsure ones first)
+    if(items&&items.length&&S.shelf===sh){
+      sh.step='제품 라벨을 하나씩 확대해서 다시 읽고 있어요';if(S.screen==='shelf')render();
+      const pick=items.map((x,i)=>({x,i})).filter(o=>o.x.box&&o.x.box[2]>1&&o.x.box[3]>1).sort((a,b)=>(a.x.conf==='low'?0:1)-(b.x.conf==='low'?0:1)||(a.x.name?1:0)-(b.x.name?1:0)).slice(0,6);
+      try{
+        const crops=await Promise.all(pick.map(o=>cropBlob(sh.file,o.x.box)));
+        const d=await aiJson(LABEL_PROMPT(pick.map(o=>o.x)),{images:crops,tier:'default'});
+        (d&&Array.isArray(d.items)?d.items:[]).forEach(r=>{const o=pick[(+r.i||0)-1];if(!o)return;const x=items[o.i];
+          const nm2=String(r.name||'').trim().slice(0,40),sd=String(r.shade||'').trim().slice(0,24);
+          if(nm2)x.name=nm2;if(sd)x.shade=sd;if(nm2&&r.conf==='high'&&!/추정/.test(x.shade))x.conf='high'});
+      }catch(e){markAi(e)}
+      items=items.map(canonShelf);
+    }
+  }
+  if(!items||!items.length){await wait(2600);items=SHELF_DEMO.map(x=>({...x,id:newId()}));if(sh.file)sh.note=aiDown?'AI 미연결 · 사진을 분석하지 못해 예시 화장대를 보여드려요. 실제 제품으로 고쳐 주세요':'제품을 찾지 못해 예시 화장대를 보여드려요. 실제 제품으로 고쳐 주세요'}
   if(S.shelf!==sh||sh.state!=='analyzing')return;
-  sh.items=items;sh.state='done';if(S.screen==='shelf')render();
+  sh.items=items;sh.state='done';sh.step='';if(S.screen==='shelf')render();
 }
 
 
