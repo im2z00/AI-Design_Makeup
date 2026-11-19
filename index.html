@@ -3155,6 +3155,9 @@ async function analyzeShelf(){
 
 /* ================= auto-save: inputs persist in this browser; example states never overwrite them ================= */
 const SAVE_KEY='beauty-ai-onboarding-v1';
+// Public link (served with an /api server): every visit starts blank and inputs live only for that tab's session.
+// claude.ai artifact (the author's copy): inputs stay in this browser across visits.
+const STORE=(()=>{try{if(API_BASE){try{localStorage.removeItem(SAVE_KEY)}catch(e){}return sessionStorage}return localStorage}catch(e){return null}})();
 let saveT=null;
 function snapshot(dropPhotos){
   return JSON.stringify({v:1,uid,screen:S.screen,S},(k,v)=>k==='photoFile'||k==='file'?undefined:dropPhotos&&k==='photo'&&typeof v==='string'&&v.startsWith('data:')?null:v);
@@ -3162,13 +3165,13 @@ function snapshot(dropPhotos){
 function saveNow(){
   if(S.preview)return;
   let ok=true;
-  try{localStorage.setItem(SAVE_KEY,snapshot(false))}catch(e){try{localStorage.setItem(SAVE_KEY,snapshot(true))}catch(e2){ok=false}}
+  try{STORE.setItem(SAVE_KEY,snapshot(false))}catch(e){try{STORE.setItem(SAVE_KEY,snapshot(true))}catch(e2){ok=false}}
   const el=document.getElementById('savestate');if(el)el.textContent=ok?'자동 저장됨':'이 브라우저에서는 저장할 수 없어요';
 }
 function saveSoon(){if(S.preview)return;clearTimeout(saveT);saveT=setTimeout(saveNow,300)}
 function loadSaved(){
   try{
-    const raw=localStorage.getItem(SAVE_KEY);if(!raw)return null;
+    const raw=STORE.getItem(SAVE_KEY);if(!raw)return null;
     const d=JSON.parse(raw);if(!d||d.v!==1||!d.S)return null;
     uid=Math.max(uid,d.uid||1);
     const s={...fresh(),...d.S};
@@ -3181,7 +3184,7 @@ function loadSaved(){
     return s;
   }catch(e){return null}
 }
-function clearSaved(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}}
+function clearSaved(){try{STORE.removeItem(SAVE_KEY)}catch(e){}}
 // In-memory copy of the user's own state while an example state is on screen (works even without storage).
 let userSnap=null;
 function cloneState(s){try{return structuredClone(s)}catch(e){const c=JSON.parse(snapshot(false)).S;c.photoFile=s.photoFile;c.shelf.file=s.shelf.file;return c}}
