@@ -2246,12 +2246,12 @@ function lookSteps(){
   return steps;
 }
 // Conditions shown on the result and in the adjust sheet.
-const condTags=k=>[`추구미 ${lookTag(k.variant)}`,`${k.occ||'데일리'}용`,...(S.pc&&S.pc!=='unknown'?[pcLabel()]:[]),k.tone,`난이도 ${k.diff}`,TIME_L[k.time],...((S.concerns||[]).length?[`고민 ${S.concerns.length}개`]:[])];
+const condTags=k=>[`추구미 ${lookTag(k.variant)}`,`${k.occ||'데일리'}용`,...(S.pc&&S.pc!=='unknown'?[pcLabel()]:[]),k.tone,...((S.concerns||[]).length?[`고민 ${S.concerns.length}개`]:[])];
 const SNAP_KEYS=['variant','tone','diff','time','alt','skip','swap','easy','preferOwn','regen','ver'];
 function snapCore(){const k=S.core,o={};SNAP_KEYS.forEach(x=>o[x]=JSON.parse(JSON.stringify(k[x])));o.steps=lookSteps().map(s=>({key:s.key,area:s.area,item:s.item,how:s.how}));o.tags=condTags(k);return o}
 // Keep the current version for comparison, apply the change, then show a short rebuild.
 function rebuild(change,msg){const k=S.core,prev=snapCore();change(k);k.vers=[prev];k.maxVer++;k.ver=k.maxVer;k.sheet=null;k.busy=true;k.busyMsg=msg;k.step=0;render();later(()=>{k.busy=false;render();toast('새 버전을 만들었어요. 위에서 이전 버전과 비교할 수 있어요')},1300)}
-const FB=[['dark','너무 진해요'],['light','너무 연해요'],['hard','너무 어려워요'],['time','시간이 없어요'],['mood','분위기가 달라요'],['own','내 제품을 더 쓰고 싶어요'],['any','다른 버전도 보고 싶어요']];
+const FB=[['dark','너무 진해요'],['light','너무 연해요'],['mood','분위기가 달라요'],['own','내 제품을 더 쓰고 싶어요'],['any','다른 버전도 보고 싶어요']];
 const TONES=['은은하게','기본','진하게'];
 function applyFb(k){
   const f=k.fb,ti=TONES.indexOf(k.tone);
@@ -2500,7 +2500,7 @@ R.c4=()=>{const k=S.core;
      <p class="why"><span>왜?</span>${esc(s.why)}</p>
      ${s.fix?`<p class="fix"><span>고민 반영</span>${esc(s.fix.text)} → ${esc(s.fix.how)}${s.fix.more?`<em class="fix-more">${ic('plus',12,2.4)}${esc(s.fix.more)} · 아래 추천 제품 참고</em>`:''}</p>`:''}
      <p class="ctip"><span>팁</span>${esc(s.tip)}</p>
-     <div class="cact" aria-label="이 단계만 바꾸기"><button data-act="cAlt" data-v="${s.key}">${ic('pencil',12)}다른 방법</button><button data-act="cEasy" data-v="${s.key}" aria-pressed="${s.easy}">더 쉽게</button>${s.tag!=='NEW'?`${s.alts>1?`<button data-act="cSwap" data-v="${s.key}">다른 제품</button>`:''}<button data-act="cSkip" data-v="${s.key}">빼기</button>`:''}</div></div></li>`).join('')}</ol>
+     <div class="cact" aria-label="이 단계만 바꾸기"><button data-act="cAlt" data-v="${s.key}">${ic('pencil',12)}다른 방법</button>${s.tag!=='NEW'?`${s.alts>1?`<button data-act="cSwap" data-v="${s.key}">다른 제품</button>`:''}<button data-act="cSkip" data-v="${s.key}">빼기</button>`:''}</div></div></li>`).join('')}</ol>
   ${(()=>{const recs=[...new Set(steps.map(s=>s.fix&&s.fix.rec).filter(Boolean))];if(!recs.length)return'';
     return `<section class="recs" aria-label="함께 쓰면 좋은 제품"><p class="rs-vt">${ic('bag',14,2)}함께 쓰면 좋은 제품</p>
     ${recs.map(r=>`<div class="rec-g"><b>${r}<small>가진 제품으로도 할 수 있지만, 있으면 더 좋아요</small></b><ol>${(REC_PICKS[r]||[]).map((n,i)=>`<li><a href="${recLink(n)}" target="_blank" rel="noopener"><span class="rec-rk">${i+1}</span><span class="rec-nm">${esc(n)}</span><span class="rec-go">올리브영${ic('chevR',12,2.2)}</span></a></li>`).join('')}</ol></div>`).join('')}
@@ -2526,8 +2526,6 @@ function condSheet(){const k=S.core,d=k.draft;
   <div class="bs-h"><b>조건 바꿔서 다시 추천받기</b><small>바꾸고 싶은 것만 고르세요. 나머지 조건과 고른 제품은 그대로 둬요.</small></div>
   <div class="bs-body">
    ${g('진하기','tone',TONES.map(x=>[x,x]))}
-   ${g('난이도','diff',[['쉽게','쉽게'],['기본','기본'],['디테일','디테일']],'쉽게 = 손가락 위주, 도구 최소')}
-   ${g('소요 시간','time',[[5,TIME_L[5]],[10,TIME_L[10]],[20,TIME_L[20]]],'5분은 핵심 3단계만 남겨요')}
    ${g('분위기','variant',moodOpts)}
    <div class="cg"><span>내 정보 고치기<small>고치면 이 화면으로 돌아와요</small></span><div class="infoed">
     <button data-act="cEditInfo" data-v="pc">${ic('pencil',13)}퍼스널컬러</button><button data-act="cEditInfo" data-v="s3">${ic('pencil',13)}고민 정리본</button><button data-act="cEditInfo" data-v="shelf">${ic('pencil',13)}화장대 제품</button></div></div>
@@ -2537,7 +2535,7 @@ function fbSheet(){const k=S.core;
  return `<div class="pop-dim" data-act="cSheetClose"></div><div class="bsheet" role="dialog" aria-modal="true" aria-label="다시 만들기">
   <div class="bs-h"><b>어떤 점이 아쉬웠나요?</b><small>고른 이유를 반영해서 다시 만들어요. 여러 개 골라도 돼요.</small></div>
   <div class="bs-body"><div class="chips">${FB.map(([v,l])=>`<button class="chip" data-act="cFb" data-v="${v}" aria-pressed="${k.fb.includes(v)}">${l}</button>`).join('')}</div>
-   <p class="note" style="margin:0;text-align:left">진하기·난이도·시간을 직접 고르고 싶다면 <button class="linkbtn" data-act="cCond" style="padding:0">조건 바꾸기</button></p></div>
+   <p class="note" style="margin:0;text-align:left">진하기·분위기를 직접 고르고 싶다면 <button class="linkbtn" data-act="cCond" style="padding:0">조건 바꾸기</button></p></div>
   <div class="bs-foot"><button class="cta sec" data-act="cSheetClose">취소</button><button class="cta" data-act="cFbApply" ${k.fb.length?'':'disabled'}>이 이유로 다시 만들기</button></div></div>`}
 function cmpSheet(){const k=S.core,a=k.vers[0],b=snapCore();
  const col=(s,other,now)=>s.steps.map(x=>{const o=other.steps.find(y=>y.key===x.key);const chg=now&&(!o||o.item!==x.item||o.how!==x.how);return `<div class="cr ${chg?'chg':''}"><b>${x.area}</b><span>${esc(x.item)}</span><small>${esc(x.how)}</small></div>`}).join('')
