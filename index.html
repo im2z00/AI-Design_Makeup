@@ -2528,7 +2528,7 @@ function condSheet(){const k=S.core,d=k.draft;
    ${g('진하기','tone',TONES.map(x=>[x,x]))}
    ${g('분위기','variant',moodOpts)}
    <div class="cg"><span>내 정보 고치기<small>고치면 이 화면으로 돌아와요</small></span><div class="infoed">
-    <button data-act="cEditInfo" data-v="pc">${ic('pencil',13)}퍼스널컬러</button><button data-act="cEditInfo" data-v="s3">${ic('pencil',13)}고민 정리본</button><button data-act="cEditInfo" data-v="shelf">${ic('pencil',13)}화장대 제품</button></div></div>
+    <button data-act="cEditInfo" data-v="pc">${ic('pencil',13)}피부 정보</button><button data-act="cEditInfo" data-v="s3">${ic('pencil',13)}고민 정리본</button><button data-act="cEditInfo" data-v="shelf">${ic('pencil',13)}화장대 제품</button></div></div>
   </div>
   <div class="bs-foot"><button class="cta sec" data-act="cSheetClose">취소</button><button class="cta" data-act="cApply" ${changed?'':'disabled'}>이 조건으로 다시 추천</button></div></div>`}
 function fbSheet(){const k=S.core;
@@ -3399,7 +3399,7 @@ function cloneState(s){try{return structuredClone(s)}catch(e){const c=JSON.parse
 
 /* ================= screen navigator (prototype review) ================= */
 const NAV=[
- ['S0','웰컴','s0'],['S1','기본 정보','s1'],['S2','선호 분위기','s2'],['S2b','퍼스널컬러','pc'],['S3a','메이크업 단계','rt'],['S3b','화장대 사진','shelf'],['3b-a','제품 분석 중','shelf-analyzing',1],['3b-b','분석 결과 확인','shelf-done',1],['S3c','평소 고민 대화','s3'],
+ ['S0','웰컴','s0'],['S1','기본 정보','s1'],['S2','선호 분위기','s2'],['S2b','피부 정보','pc'],['S3a','메이크업 단계','rt'],['S3b','화장대 사진','shelf'],['3b-a','제품 분석 중','shelf-analyzing',1],['3b-b','분석 결과 확인','shelf-done',1],['S3c','평소 고민 대화','s3'],
  ['3c-a','고민 모으는 중','s3-collect',1],['3c-b','정리 중 로딩','s3-loading',1],['3c-c','정리된 고민 시트','s3-result',1],['3c-d','인식 실패 재질문','s3-fail',1],
  ['S4','얼굴 사진','s4'],['4-a','분석 완료','s4-done',1],['S6','완료 요약','s6'],['홈','검색 홈','home'],['홈-a','검색 + 인기 순위','search',1],['마이','마이페이지 · 보유 제품','my'],['내 룩','저장된 룩','looks'],
  ['#','핵심 씬 스케치'],
