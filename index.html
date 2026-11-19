@@ -1505,11 +1505,11 @@ R.rt=()=>{const r=S.routine;
   <button class="cta" data-act="next" ${r.length?'':'disabled'}>${ctaLabel('다음')}</button></div></div>`};
 // Demo vanity used on desktop and when AI image analysis is unavailable; boxes are % of the photo.
 const SHELF_DEMO=[
- {item:'선크림',name:'○○ 톤업 선크림',shade:'',hex:null,conf:'high',box:[6,28,13,54]},
- {item:'쿠션',name:'○○ 커버 쿠션',shade:'21호 라이트 베이지',hex:'#ECCDB5',conf:'high',box:[21,58,23,28]},
- {item:'섀도우',name:'○○ 4구 팔레트',shade:'로즈 브라운 계열',hex:'#A9786A',conf:'high',box:[46,58,26,27]},
- {item:'립밤',name:'○○ 립밤',shade:'투명 핑크',hex:'#E9B9B4',conf:'high',box:[61,17,9,37]},
- {item:'틴트',name:'○○ 블러 틴트',shade:'코랄 계열 (추정)',hex:'#EE7F6E',conf:'low',box:[74,21,9,50]},
+ {item:'선크림',name:'라운드랩 자작나무 수분 선크림',shade:'',hex:null,conf:'high',box:[6,28,13,54]},
+ {item:'쿠션',name:'클리오 킬커버 더 뉴 파운웨어 쿠션',shade:'03 린넨 (21호)',hex:'#ECCDB5',conf:'high',box:[21,58,23,28]},
+ {item:'섀도우',name:'롬앤 베러 댄 팔레트',shade:'02 마호가니 가든',hex:'#A9786A',conf:'high',box:[46,58,26,27]},
+ {item:'립밤',name:'바세린 립 테라피 로지 립스',shade:'투명 핑크',hex:'#E9B9B4',conf:'high',box:[61,17,9,37]},
+ {item:'틴트',name:'롬앤 블러 퍼지 틴트',shade:'코랄 계열 (추정)',hex:'#EE7F6E',conf:'low',box:[74,21,9,50]},
  {item:'하이라이터',name:'',shade:'샴페인 골드 (추정)',hex:'#E6CFA6',conf:'low',box:[84,57,15,23]},
 ];
 const vanitySVG=ghost=>`<svg class="vanity${ghost?' ghost':''}" viewBox="0 0 320 200" role="img" aria-label="${ghost?'화장대 사진 예시':'화장대 사진'}">
@@ -1811,7 +1811,7 @@ const IDENT_PROMPT=q=>`사용자가 메이크업 앱에서 "${q.slice(0,60)}"를
 - 정확히 아는 제품이 없으면 sure를 false로 하고, 검색어와 비슷한 일반적인 제품을 적어.
 
 형식 예시
-{"sure":true,"candidates":[{"brand":"○○","name":"아이 팔레트","cat":"아이","type":"팔레트","desc":"4구 · 글리터 2 + 매트 2","colors":[{"name":"01 로즈 브라운","hex":"#B98273"}],"match":""}]}`;
+{"sure":true,"candidates":[{"brand":"롬앤","name":"베러 댄 팔레트","cat":"아이","type":"팔레트","desc":"4구 · 글리터 2 + 매트 2","colors":[{"name":"01 로즈 브라운","hex":"#B98273"}],"match":""}]}`;
 const TYPES_BY_CAT={아이:'팔레트',립:'틴트',치크:'블러셔',베이스:'쿠션'};
 function fallbackCands(q){const pq=parseQuery(q),g=guessCat(q),cat=g==='아이'&&!/섀도|팔레트|아이|라이너|마스카라|글리터|브로우/.test(q)&&(pq.color||pq.num)?'립':g; // brand + shade with no product word is most often a lip
   let colors=CAT_SW[cat].map(([name,hex])=>({name,hex}));
@@ -3332,7 +3332,8 @@ const SHELF_PROMPT=`이 사진은 사용자의 화장대야. 보이는 메이크
 
 규칙
 - item은 다음 중 하나만 써: ${'선크림, 프라이머/프렙, 쿠션, 파운데이션, 컨실러, 파우더, 섀도우, 아이라이너, 마스카라, 브로우, 브로우카라, 블러셔, 하이라이터, 쉐딩, 틴트, 립스틱, 립글로스, 립라이너, 립밤, 기타'}.
-- name은 라벨에서 읽은 브랜드와 제품명이야. 읽을 수 없으면 "".
+- name은 "브랜드명 + 제품명" 전체야. 예: "롬앤 블러 퍼지 틴트", "클리오 킬커버 더 뉴 파운웨어 쿠션". 브랜드명을 절대 빼지 말고, "○○"·"OO" 같은 자리표시나 "블러 틴트"처럼 일반 명칭만 쓰지 마.
+  라벨이 안 읽혀도 용기 디자인으로 제품을 알아보면 그 제품명을 적고 conf를 "low"로 해. 브랜드만 읽히면 브랜드명과 보이는 종류(예: "롬앤 틴트")를 적어. 아무것도 모르겠으면 "".
 - shade는 색상 정보야. 이 순서로 정해:
   1) 라벨에 색상명·호수가 보이면 그대로 적어. 예: "21호", "03 코랄 피치".
   2) 제품명을 읽었고 그 제품의 색상 라인업을 알고 있다면, 보이는 색과 가장 가까운 공식 색상명을 적고 뒤에 " (추정)"을 붙여.
@@ -3344,7 +3345,7 @@ const SHELF_PROMPT=`이 사진은 사용자의 화장대야. 보이는 메이크
 - 최대 12개까지. 화장품이 아닌 물건은 빼.
 
 형식 예시
-{"items":[{"item":"쿠션","name":"○○ 커버 쿠션","shade":"21호","hex":"#ECCDB5","conf":"high","box":[22,52,22,34]},{"item":"틴트","name":"","shade":"코랄 핑크 (추정)","hex":"#EE8478","conf":"low","box":[70,20,8,45]}]}`;
+{"items":[{"item":"쿠션","name":"클리오 킬커버 더 뉴 파운웨어 쿠션","shade":"03 린넨","hex":"#ECCDB5","conf":"high","box":[22,52,22,34]},{"item":"틴트","name":"","shade":"코랄 핑크 (추정)","hex":"#EE8478","conf":"low","box":[70,20,8,45]}]}`;
 function normShelf(d){
   if(!d||!Array.isArray(d.items))return[];
   const all=[...TYPES,'기타'];
@@ -3388,6 +3389,8 @@ function loadSaved(){
     if(s.photoState==='analyzing'||(s.photoState==='done'&&!s.photo))s.photoState='none';
     if(s.shelf&&s.shelf.state==='analyzing')s.shelf.state=s.shelf.items.length?'done':'none';
     if(s.core&&!s.core.ready)s.core.ready=true;
+    // older saves held placeholder names ("○○ 블러 틴트"): swap in the example's real brand names
+    if(s.shelf&&s.shelf.items)s.shelf.items.forEach(x=>{if(/^○○/.test(x.name||'')){const d=SHELF_DEMO.find(y=>y.item===x.item);if(d){x.name=d.name;if(x.shade&&/계열|호/.test(x.shade)&&d.shade)x.shade=d.shade}}});
     Object.assign(s,{reportState:null,repOpen:false,camera:false,camLive:false,listening:false,popup:null,preview:false,editing:null,adding:false});
     return s;
   }catch(e){return null}
