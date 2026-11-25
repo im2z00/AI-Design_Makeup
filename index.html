@@ -805,6 +805,35 @@ a.pv{text-decoration:none;color:#fff}
 .ai-off{margin:0;padding:8px 10px;border-radius:10px;background:#FFF4E5;color:#8A4B00;font-size:12px;font-weight:700;line-height:1.5}
 .qtip{margin:0;display:flex;align-items:flex-start;gap:5px;padding:8px 10px;border-radius:10px;background:var(--sand);color:var(--ink-2);font-size:12px;font-weight:600;line-height:1.5}
 .qtip .ic{flex:none;margin-top:1px}
+.consent{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.cs-h{display:flex;align-items:center;gap:5px;font-size:13.5px;font-weight:800}
+.cs-opt{display:flex;align-items:flex-start;gap:10px;padding:10px;border:1.5px solid var(--line);border-radius:12px;text-align:left;cursor:pointer;transition:border-color .15s,background .15s}
+.cs-opt:hover{border-color:var(--rose)}
+.cs-opt[aria-checked="true"]{border-color:var(--rose-deep);background:var(--rose-soft)}
+.cs-opt>span:last-child{display:flex;flex-direction:column;gap:2px}
+.cs-opt b{font-size:13.5px;font-weight:800}
+.cs-opt small{font-size:11.5px;color:var(--ink-2);line-height:1.45}
+.cs-dot{flex:none;width:16px;height:16px;margin-top:2px;border-radius:50%;border:2px solid var(--line);background:#fff}
+.cs-opt[aria-checked="true"] .cs-dot{border:5px solid var(--rose-deep)}
+.cs-foot{font-size:11px;color:var(--ink-3);line-height:1.45}
+.pbtns.wait{opacity:.45;pointer-events:none}
+.ds-sec{display:flex;flex-direction:column;gap:6px}
+.ds-sec+.ds-sec{padding-top:10px;border-top:1px solid var(--line)}
+.ds-sec h5{margin:0;font-size:12.5px;font-weight:800;color:var(--ink-2)}
+.ds-sec>small{font-size:11.5px;color:var(--ink-3);line-height:1.5}
+.ds-seg{display:flex;gap:6px}
+.ds-seg button{flex:1;padding:8px 6px;border-radius:10px;border:1.5px solid var(--line);font-size:12.5px;font-weight:700;color:var(--ink-2);cursor:pointer}
+.ds-seg button[aria-checked="true"]{border-color:var(--rose-deep);color:var(--rose-deep);background:var(--rose-soft)}
+.ds-tg{display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;padding:4px 0}
+.ds-tg>span{flex:1;display:flex;flex-direction:column;gap:1px}
+.ds-tg b{font-size:13px;font-weight:700}
+.ds-tg small{font-size:11px;color:var(--ink-3)}
+.ds-tg i{flex:none;position:relative;width:36px;height:21px;border-radius:11px;background:var(--line);transition:background .15s}
+.ds-tg i::after{content:'';position:absolute;left:2px;top:2px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s}
+.ds-tg[aria-checked="true"] i{background:var(--rose-deep)}
+.ds-tg[aria-checked="true"] i::after{transform:translateX(15px)}
+.foot.tri{display:flex;gap:6px}
+.foot.tri .cta{flex:1;width:auto;padding:0 8px;font-size:15px}
 .shelf-note{margin:-10px 0 0;font-size:12px;color:var(--ink-3);line-height:1.5}
 .ssec-t{font-size:12.5px;font-weight:800;color:var(--ink-2);margin-bottom:-8px}
 .ssec{display:flex;flex-direction:column;gap:6px}
@@ -1083,7 +1112,7 @@ const AREAS=['베이스','아이','치크','립','전체'];
 let S;
 function fresh(){return{screen:'s0',nick:'',age:null,gender:null,moods:[],
   chat:[{from:'ai',text:AI_FIRST}],draft:'',phase:'idle',demoTyped:false,listening:false,bannerOpen:true,
-  pc:null,pcSkipped:false,shade:null,skinType:null,moodRef:null,routine:[],shelf:{photo:null,file:null,state:'none',items:[],skipped:false,hl:null,editing:null,adding:null,note:''},concerns:null,concernSkipped:false,sheet:'closed',editing:null,adding:false,popup:null,core:null,
+  pc:null,pcSkipped:false,photoMode:null,useOwned:true,useConcerns:true,useFace:true,shade:null,skinType:null,moodRef:null,routine:[],shelf:{photo:null,file:null,state:'none',items:[],skipped:false,hl:null,editing:null,adding:null,note:''},concerns:null,concernSkipped:false,sheet:'closed',editing:null,adding:false,popup:null,core:null,
   photo:null,photoState:'none',photoSkipped:false,camera:false,returnTo:null,slide:0,query:'',owned:[],looks:[]}}
 S=fresh();
 const nm=()=>(S.nick.trim()||'회원')+'님';
@@ -1533,14 +1562,25 @@ R.shelf=()=>{const sh=S.shelf,st=sh.state;
   <h1 class="title">화장대를 찍어주세요</h1>
   <div class="tips"><div class="tip"><span>${ic('text',24,1.6)}</span>라벨이<br>보이게</div><div class="tip"><span>${ic('sun',24,1.6)}</span>밝은 곳</div><div class="tip"><span>${ic('cards',24,1.6)}</span>여러 개<br>한 번에</div><div class="tip"><span>${ic('front',24,1.6)}</span>위에서<br>정면으로</div></div>
   <div class="shelf-photo"><div class="wrap">${vanitySVG(true)}</div></div>
-  <div class="pbtns"><button class="pbtn pri" data-act="shelfCam">${ic('camera',20)}사진 찍기</button><label class="pbtn" for="shelffile" tabindex="0">${ic('image',20)}앨범에서 선택</label></div>
+  ${photoConsent('shelf')}
+  <div class="pbtns ${S.photoMode?'':'wait'}"><button class="pbtn pri" data-act="shelfCam" ${S.photoMode?'':'disabled'}>${ic('camera',20)}사진 찍기</button><label class="pbtn" for="shelffile" tabindex="0" ${S.photoMode?'':'aria-disabled="true"'}>${ic('image',20)}앨범에서 선택</label></div>
   <input type="file" id="shelffile" accept="image/*" hidden><input type="file" id="shelfcam" accept="image/*" capture="environment" hidden>
-  <div class="trust">${ic('lock',16)}<span>사진은 제품 인식에만 쓰이고 저장하지 않아요.</span></div>`
+  <div class="trust">${ic('lock',16)}<span>${photoTrust()}</span></div>`
   :`<div class="shelf-photo small" ${img?'':'hidden'}><div class="wrap">${img}${st==='analyzing'?'<div class="scanline"></div>':''}${boxes}</div></div>
   ${st==='analyzing'?`<p class="anal-txt" role="status">${sh.step||'제품과 색상을 찾고 있어요…'}<br><small>라벨과 색을 꼼꼼히 보느라 조금 걸릴 수 있어요</small></p>`:shelfList()}`}
  </div>
  <div class="foot tall"><button class="cta" data-act="saveShelf" ${st==='done'&&!sh.editing&&!sh.adding?'':'disabled'}>${ctaLabel(st==='done'?'이대로 저장할게요':'다음')}</button>
   ${S.returnTo||st!=='none'?'':`<button class="sublink" data-act="skip">나중에 할게요</button>`}</div></div>`};
+// Photos are personal data: say exactly where they go, and let the person pick before anything is sent.
+const PHOTO_MODES=[['ai','AI 정밀 분석','사진이 분석을 위해 AI로 한 번 전송돼요. 이 서비스는 사진을 따로 보관하지 않아요'],
+  ['local','기기 안에서만 분석','사진이 이 기기 밖으로 나가지 않아요. 얼굴은 위치·비율만 재고, 화장대 제품은 직접 입력해요']];
+function photoConsent(kind){
+  return `<div class="consent" role="radiogroup" aria-label="사진 분석 방식"><b class="cs-h">${ic('lock',14)}사진을 어떻게 분석할까요?</b>
+   ${PHOTO_MODES.map(([v,l,d])=>`<button class="cs-opt" role="radio" aria-checked="${S.photoMode===v}" data-act="photoMode" data-v="${v}"><span class="cs-dot"></span><span><b>${l}</b><small>${d}</small></span></button>`).join('')}
+   <small class="cs-foot">${kind==='face'?'얼굴 사진':'화장대 사진'}과 분석 결과는 이 브라우저에만 저장되고, 마이페이지 ‘AI·데이터 설정’에서 언제든 바꾸거나 지울 수 있어요.</small></div>`;
+}
+const photoTrust=()=>S.photoMode==='local'?'사진이 이 기기 밖으로 나가지 않아요. 사진과 결과는 이 브라우저에만 저장되고 언제든 지울 수 있어요.'
+  :'AI 분석을 위해 사진이 한 번 전송되고, 이 서비스는 사진을 따로 보관하지 않아요. 사진과 결과는 이 브라우저에만 저장되고 언제든 지울 수 있어요.';
 function shelfForm(x,preset){
   return `<form class="sform" data-sform="${x?x.id:'new'}"><select name="item" aria-label="제품 종류">${[...TYPES,'기타'].map(t=>`<option ${(x?x.item:preset)===t?'selected':''}>${t}</option>`).join('')}</select>
    <input name="shade" value="${x?esc(x.shade):''}" placeholder="색상·호수" aria-label="색상·호수">
@@ -1584,12 +1624,13 @@ R.s4=()=>{
    <div class="tip"><span>${ic('front',26,1.6)}</span>정면</div><div class="tip"><span>${ic('sun',26,1.6)}</span>자연광</div>
    <div class="tip"><span>${ic('bare',26,1.6)}</span>맨얼굴 또는<br>가벼운 화장</div><div class="tip"><span>${ic('hairup',26,1.6)}</span>앞머리<br>넘기기</div></div>
    <div class="photo empty">${silhouette('silClip')}</div>
-   <div class="pbtns"><button class="pbtn pri" data-act="camera">${ic('camera',20)}사진 찍기</button><label class="pbtn" for="file" tabindex="0">${ic('image',20)}앨범에서 선택</label></div>
+   ${photoConsent('face')}
+   <div class="pbtns ${S.photoMode?'':'wait'}"><button class="pbtn pri" data-act="camera" ${S.photoMode?'':'disabled'}>${ic('camera',20)}사진 찍기</button><label class="pbtn" for="file" tabindex="0" ${S.photoMode?'':'aria-disabled="true"'}>${ic('image',20)}앨범에서 선택</label></div>
    <input type="file" id="file" accept="image/*" hidden><input type="file" id="camfile" accept="image/*" capture="user" hidden>`
   :`<div class="photo">${img}${st==='analyzing'?'<div class="scanline"></div>':overlay()}${st==='done'?`<span class="donechip">${ic('check',14,2.6)}분석 완료</span>`:''}</div>
    ${st==='analyzing'?`<p class="anal-txt" role="status">눈매·코·입술·얼굴형 위치를 찾고 있어요…</p>`:`<div class="found">${S.faceTraits?`<span>눈매 · ${esc(S.faceTraits.eyes)}</span><span>얼굴형 · ${esc(S.faceTraits.face)}</span>`:'<span>눈매</span><span>코</span><span>입술</span><span>얼굴형</span>'}</div>${st==='done'?repButton():''}${S.photoTips?`<p class="qtip">${ic('camera',14)}${esc(S.photoTips)}</p>`:''}${S.faceNote?`<p class="ai-off">${esc(S.faceNote)}</p>`:''}
    <div class="plink"><button data-act="retake">다른 사진으로 바꾸기</button><button data-act="delPhoto">사진 삭제</button></div>`}`}
-  <div class="trust">${ic('lock',16)}<span>사진은 얼굴 특징 분석에만 쓰이고 외부에 공개되지 않아요. 언제든 삭제할 수 있어요.</span></div>
+  <div class="trust">${ic('lock',16)}<span>${photoTrust()}</span></div>
  </div>
  <div class="foot tall"><button class="cta" data-act="next" ${st==='done'?'':'disabled'}>${ctaLabel('다음')}</button>
   ${S.returnTo?'':`<button class="sublink" data-act="skip">나중에 할게요(추천 정확도가 낮아질 수 있어요)</button>`}</div>
@@ -1708,6 +1749,13 @@ R.my=()=>{
      c.length?`<ul class="dr-ul">${c.map(x=>`<li><em>${x.area}</em>${esc(x.text)}</li>`).join('')}</ul>`:none(S.concerns?'특별한 고민이 없다고 하셨어요':'고민을 알려주시면 해결 방법까지 넣어드려요'),'s3')}
   ${drawer('face','look','얼굴 분석',S.photoState==='done'?(fr?`${frType(fr)} · ${fr.shape}`:S.faceTraits?`${esc(S.faceTraits.eyes)} · ${esc(S.faceTraits.face)}`:'분석 완료'):'미입력',
      S.photoState==='done'?`<dl class="dr-dl">${fr?`<dt>이미지 유형</dt><dd>${frType(fr)}</dd><dt>얼굴형</dt><dd>${fr.shape}</dd><dt>눈</dt><dd>${[fr.eyeShape,fr.lid,'눈꼬리 '+fr.tail].filter(Boolean).join(' · ')}</dd><dt>입술</dt><dd>${fr.lipThick} · ${fr.lipRatio}</dd>`:`<dt>눈매</dt><dd>${esc(S.faceTraits?S.faceTraits.eyes:'-')}</dd><dt>얼굴형</dt><dd>${esc(S.faceTraits?S.faceTraits.face:'-')}</dd>`}</dl>`:none('사진을 올리면 바를 위치와 범위를 얼굴에 맞춰요'),'s4',S.photoState==='done'?'사진·리포트 보기':'사진 올리기')}
+  ${drawer('data','lock','AI·데이터 설정',`사진 ${S.photoMode==='local'?'기기 안에서만':S.photoMode==='ai'?'AI 정밀 분석':'미선택'} · 추천 반영 ${[S.useOwned!==false,S.useConcerns!==false,S.useFace!==false].filter(Boolean).length}/3`,
+     `<div class="ds-sec"><h5>사진 분석 방식</h5><div class="ds-seg" role="radiogroup">${PHOTO_MODES.map(([v,l])=>`<button role="radio" aria-checked="${S.photoMode===v}" data-act="photoMode" data-v="${v}">${l}</button>`).join('')}</div>
+      <small>${S.photoMode==='local'?'다음에 올리는 사진부터 기기 안에서만 분석해요. 화장대 제품은 직접 입력해요':'다음에 올리는 사진부터 AI로 정밀 분석해요. 사진은 분석에만 쓰고 따로 보관하지 않아요'}</small></div>
+     <div class="ds-sec"><h5>추천에 반영할 정보</h5>
+      ${[['useOwned','보유 제품','끄면 가진 제품 대신 일반 제품 기준으로 단계를 짜요'],['useConcerns','메이크업 고민','끄면 고민 반영 문구와 관련 추천이 빠져요'],['useFace','얼굴 사진','끄면 내 사진 대신 그림 가이드로 바를 위치를 보여줘요']].map(([k,l,d])=>`<button class="ds-tg" role="switch" aria-checked="${S[k]!==false}" data-act="useToggle" data-v="${k}"><span><b>${l}</b><small>${d}</small></span><i></i></button>`).join('')}</div>
+     <div class="ds-sec"><h5>저장 위치</h5><small>입력한 정보, 사진, 분석 결과, 저장한 룩은 모두 이 브라우저에만 저장돼요. AI에는 검색어·고민 문장과, AI 정밀 분석을 고른 경우의 사진만 분석할 때 보내요. 광고나 제휴 목적으로 쓰지 않아요.</small>
+      <button class="dr-add" data-act="delPhotos" ${S.photo||S.shelf.photo?'':'disabled'}>${ic('trash',14)}얼굴·화장대 사진만 지우기</button></div>`,null)}
   </div>
   <button class="my-reedit" data-act="myRestart"><span class="dr-ic">${ic('refresh',18)}</span><span class="dr-t"><b>내 정보 초기화하기</b><small>입력한 정보를 지우고 첫 화면부터 다시 시작해요</small></span>${ic('chevR',16,2)}</button>
  </div>
@@ -1791,7 +1839,7 @@ const HAVE={아이:['브라운 섀도우 있어요','핑크 섀도우 있어요'
 const HAVE_Q={아이:'아이섀도우',립:'립 제품',치크:'블러셔',베이스:'베이스 제품'};
 const HAVE_TYPES={아이:['섀도우'],립:['틴트','립스틱','립글로스'],치크:['블러셔'],베이스:['쿠션','파운데이션']};
 // What the user already owns for these types: vanity product first, then the routine step name.
-function shelfFor(...types){const it=S.shelf.items.find(x=>types.includes(x.item));if(it)return [it.name||it.item,it.shade.replace(/\s*\(추정\)|\?$/g,'')].filter(Boolean).join(' ');const r=S.routine.find(t=>types.includes(t));return r?`평소 쓰는 ${r}`:null}
+function shelfFor(...types){if(S.useOwned===false)return null;const it=S.shelf.items.find(x=>types.includes(x.item));if(it)return [it.name||it.item,it.shade.replace(/\s*\(추정\)|\?$/g,'')].filter(Boolean).join(' ');const r=S.routine.find(t=>types.includes(t));return r?`평소 쓰는 ${r}`:null}
 const OCC=['데일리','약속·데이트','특별한 날'];
 const STORES=[['쇼핑몰 A',18900,'무료배송 · 내일 도착'],['B 뷰티',19500,'무료배송'],['C마켓',20800,'배송비 2,500원'],['D스토어',22000,'무료배송 · 사은품']];
 function guessCat(q){const r=RANK.find(x=>x[0]===q);if(r&&CAT_SW[r[1]])return r[1];return /립|틴트|립스틱|오일|글로스/.test(q)?'립':/블러셔|블러쉬|치크|하이라이터|컨투어|쉐딩/.test(q)?'치크':/쿠션|파운데이션|파데|컨실러|베이스|선크림/.test(q)?'베이스':'아이'}
@@ -2115,7 +2163,7 @@ function photoMakeup(c){
     ${x.hl>.3?`<g opacity="${f(x.hl*.25)}" filter="url(#${id}B1)"><ellipse cx="${f(N.cx)}" cy="${f(N.cy-N.ry*.2)}" rx="${f(N.rx*.12)}" ry="${f(N.ry*.45)}"/><ellipse cx="${f(L.cx-L.rx*.95)}" cy="${f(L.cy+L.ry*1.9)}" rx="${f(L.rx*.32)}" ry="${f(L.ry*.28)}"/><ellipse cx="${f(R.cx+R.rx*.95)}" cy="${f(R.cy+R.ry*1.9)}" rx="${f(R.rx*.32)}" ry="${f(R.ry*.28)}"/></g>`:''}
    </g></svg></span>`;
 }
-const ownPhoto=()=>S.photoState==='done'&&S.photo&&S.photo!=='demo'&&S.faceLm;
+const ownPhoto=()=>S.useFace!==false&&S.photoState==='done'&&S.photo&&S.photo!=='demo'&&S.faceLm;
 R.c3=()=>{const k=S.core,c=coreColor()[1],deep=deepen(c);
  const f=v=>{const m=MOODS.find(x=>x.id===v.replace('+',''))||MOODS[0],col=v.endsWith('+')?deep:c,strong=v.endsWith('+')?plusTone(v)==='진하게':lookOf(v).tone==='진하게';
    const fx=moodFx(v),mk={id:v.replace('+','p'),lid:k.cat==='아이'?col:(fx.lidC||m.sw[2]),lip:k.cat==='립'?col:(fx.lipC||m.sw[0]),blush:k.cat==='치크'?col:(fx.blushC||m.sw[1]),strong,wing:false,fx};
@@ -2143,7 +2191,7 @@ R.c3=()=>{const k=S.core,c=coreColor()[1],deep=deepen(c);
 // How each saved concern is handled when it lands on a step.
 const SOLVE=[[/무너|지속/,'마지막에 픽서를 한 번 뿌려 고정해요'],[/번들|유분/,'T존만 파우더로 가볍게 눌러요'],[/칙칙/,'베이지 베이스로 톤을 먼저 정리해요'],[/비슷/,'새 컬러를 중앙 포인트로만 써서 분위기를 바꿔요'],[/각질|뭉침/,'립밤으로 각질을 먼저 정리해요'],[/들뜸|건조/,'수분 프라이머를 먼저 얇게 발라요'],[/다크/,'컨실러를 점처럼 찍어 두드려요'],[/모공/,'모공 프라이머를 T존에만 써요'],[/번짐/,'아래 라인은 비워 번짐을 막아요'],[/어려움/,'아래 영상 구간을 따라 한 단계씩 해보세요'],[/안 어울/,'퍼스널컬러에 맞춘 컬러로 골랐어요'],[/시간/,'바쁜 날엔 위 ‘조건’에서 5분 버전을 고르면 핵심 단계만 남아요']];
 const solve=t=>(SOLVE.find(([re])=>re.test(t))||[0,'이 단계에서 함께 신경 썼어요'])[1];
-const hasType=(...ts)=>ownedAll().some(x=>ts.includes(x.type))||S.routine.some(r=>ts.includes(r));
+const hasType=(...ts)=>S.useOwned!==false&&ownedAll().some(x=>ts.includes(x.type))||S.routine.some(r=>ts.includes(r));
 // [concern pattern, product it needs, how with it, how without it (owned items only), "있으면 좋아요" line]
 const SOLVE_OWN=[
   [/무너|지속/,['픽서'],'마지막에 픽서를 한 번 뿌려 고정해요',()=>hasType('파우더')?'베이스를 두 번에 나눠 얇게 올리고, 가진 파우더로 T존을 눌러 고정해요':'베이스를 두 번에 나눠 얇게 올리고, 티슈로 유분을 한 번 눌러낸 뒤 퍼프로 다시 눌러줘요','픽서가 있으면 베이스가 훨씬 오래 고정돼요'],
@@ -2172,7 +2220,7 @@ const LVL={은은하게:'아주 얇게 한 겹',기본:'한 겹',진하게:'두 
 const isEst=x=>/추정/.test(x.shade||'')||x.conf==='low';
 const shelfName=x=>[x.name||x.item,(x.shade||'').replace(/\s*\(추정\)|\?$/g,'')].filter(Boolean).join(' ');
 // Where a step's product comes from: the vanity photo, the routine list, or a general suggestion.
-function ownOf(types,fallback){const it=S.shelf.items.find(x=>types.includes(x.item));if(it)return{src:'내 화장대',est:isEst(it)};if(S.routine.some(r=>types.includes(r)))return{src:'평소 루틴',est:false};return{src:fallback,est:false}}
+function ownOf(types,fallback){if(S.useOwned===false)return{src:fallback,est:false};const it=S.shelf.items.find(x=>types.includes(x.item));if(it)return{src:'내 화장대',est:isEst(it)};if(S.routine.some(r=>types.includes(r)))return{src:'평소 루틴',est:false};return{src:fallback,est:false}}
 function shelfAlts(area){return S.shelf.items.filter(x=>(AREA_TYPES[area]||[]).includes(x.item)).map(x=>({item:shelfName(x),src:'내 화장대',est:isEst(x)}))}
 // Korean particles after a word: josa('로즈','을','를'), ro('한 겹') → '한 겹으로'
 const jong=w=>{const c=String(w).trim().slice(-1).charCodeAt(0);return c>=0xAC00&&c<=0xD7A3?(c-0xAC00)%28:0};
@@ -2185,7 +2233,7 @@ function lookSteps(){
   const have=k.have&&k.have!=='없어요'?k.have.replace(' 있어요',''):null;
   const lvl=LVL[k.tone]||'한 겹',ml=lookOf(k.variant),easyAll=k.diff==='쉽게';
   const mEye=easyAll?'':ml.eye,mOther=easyAll?'':ml.other;
-  const fix=(...as)=>{const c=(S.concerns||[]).find(c=>as.includes(c.area));return c?fixFor(c.text):null};
+  const fix=(...as)=>{if(S.useConcerns===false)return null;const c=(S.concerns||[]).find(c=>as.includes(c.area));return c?fixFor(c.text):null};
   const eyes=S.faceTraits&&S.faceTraits.eyes,face=S.faceTraits&&S.faceTraits.face,fr=S.faceTraits&&S.faceTraits.report;
   const NEW={tag:'NEW',src:'관심 제품',est:false,core:1};
   const occWhy=`${k.occ||'데일리'} 자리라 ${k.occ==='특별한 날'?'커버를 한 단계 올렸어요':k.occ==='약속·데이트'?'광을 살려 생기 있게 잡았어요':'얇고 오래가게 잡았어요'}`;
@@ -2507,7 +2555,7 @@ R.c4=()=>{const k=S.core;
   ${(()=>{const recs=[...new Set(steps.map(s=>s.fix&&s.fix.rec).filter(Boolean))];if(!recs.length)return'';
     return `<section class="recs" aria-label="함께 쓰면 좋은 제품"><p class="rs-vt">${ic('bag',14,2)}함께 쓰면 좋은 제품</p>
     ${recs.map(r=>`<div class="rec-g"><b>${r}<small>가진 제품으로도 할 수 있지만, 있으면 더 좋아요</small></b><ol>${(REC_PICKS[r]||[]).map((n,i)=>`<li><a href="${recLink(n)}" target="_blank" rel="noopener"><span class="rec-rk">${i+1}</span><span class="rec-nm">${esc(n)}</span><span class="rec-go">올리브영${ic('chevR',12,2.2)}</span></a></li>`).join('')}</ol></div>`).join('')}
-    <p class="rec-note">실시간 판매 순위를 불러올 수 없어 많이 찾는 대표 제품으로 골랐어요. 누르면 올리브영 검색 결과로 이동해요.</p></section>`})()}
+    <p class="rec-note">광고·제휴 없이 고른 제품이에요. 실시간 판매 순위를 불러올 수 없어 많이 찾는 대표 제품으로 골랐고, 누르면 올리브영 검색 결과로 이동해요.</p></section>`})()}
   <p class="rs-vt">${ic('play',14,2)}활용 영상</p>
   ${(()=>{const ri=RANK.findIndex(r=>r[0]===k.prodName||r[0]===k.q),vids=ri>=0&&YT_VIDS[ri+1]||[],q=encodeURIComponent((k.prodName||k.q)+' 메이크업');
    if(!vids.length)return `<a class="player vnone" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener"><span class="pv-play">${ic('play',20,2)}</span><span><b>YouTube에서 ‘${esc(k.prodName||k.q)}’ 활용 영상 보기</b><small>이 제품을 직접 다룬 영상을 아직 고르지 못해서 검색 결과로 연결해요</small></span></a>`;
@@ -2607,10 +2655,10 @@ R.c5=()=>{const k=S.core,have=k.have&&k.have!=='없어요'?k.have.replace(' 있�
   <p class="note" style="margin-top:-4px">후기 경향은 AI가 알고 있는 일반적인 정보예요. 실제 가격은 다음 화면에서 쇼핑몰 기준으로 보여드려요.</p>
   <button class="linkbtn" data-act="cBackCond">룩이 아직 아쉬워요 · 조건 바꿔서 다시 보기</button>
  </div>
- <div class="foot dual"><button class="cta sec" data-act="cWish">찜하기</button><button class="cta" data-act="cBuy">최저가 보기</button></div></div>`};
+ <div class="foot tri"><button class="cta sec" data-act="cSkipBuy">안 살래요</button><button class="cta sec" data-act="cWish">찜하기</button><button class="cta sec" data-act="cBuy">최저가 보기</button></div></div>`};
 // Lowest-price page: live Naver Shopping results when the server is set up, example shops otherwise.
 R.c6=()=>{const k=S.core;
- const shops=k.shop&&k.shop.length?k.shop.map(s=>[s.mallName,s.lprice,'네이버 쇼핑',s.link]):STORES,live=!!(k.shop&&k.shop.length);
+ const shops=(k.shop&&k.shop.length?k.shop.map(s=>[s.mallName,s.lprice,'네이버 쇼핑',s.link]):STORES).slice().sort((a,b)=>Number(a[1])-Number(b[1])),live=!!(k.shop&&k.shop.length);
  const store=k.store!==null?shops[k.store]:null;
  return `<div class="scr">${statusBar()}${coreTop('최저가')}
  <div class="body">
@@ -2618,7 +2666,7 @@ R.c6=()=>{const k=S.core;
   <h1 class="title">${esc(k.prodName)}<br>최저가 모아봤어요</h1>
   <div class="prices"><div class="prices-h"><b>네이버 쇼핑 최저가</b><small>${live?`출처 네이버 쇼핑 · ${k.shopAt?new Date(k.shopAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+' 기준':'실시간 검색'}`:'예시 가격 · 실제 가격과 달라요'}</small></div>
    ${shops.map(([n,pr,ship],i)=>`<button class="prow2" data-act="cStore" data-v="${i}"><span class="st">${esc(n)}${i===0?'<span class="low">최저가</span>':''}</span><span class="pr">${Number(pr).toLocaleString('ko-KR')}원</span><small>${esc(ship)}</small><span class="go">이동 ${ic('chevD',12)}</span></button>`).join('')}</div>
-  <p class="note" style="margin-top:0">가격·배송비는 쇼핑몰에서 바뀔 수 있어요. 이동한 뒤 한 번 더 확인해 주세요.</p>
+  <p class="note" style="margin-top:0">가격 낮은 순으로만 정렬했어요. 광고·제휴로 순서를 바꾸지 않아요. 가격·배송비는 쇼핑몰에서 바뀔 수 있어요.</p>
  </div>
  <div class="foot dual"><button class="cta sec" data-act="tabHome">${ic('home',18)}홈으로</button><button class="cta sec2" data-act="openSearch">다른 제품도 찾아볼래요</button></div>
  ${store?`<div class="pop-dim" data-act="cStoreCancel"></div><div class="pop" role="dialog" aria-modal="true" aria-labelledby="pop-t">
@@ -2802,6 +2850,9 @@ dev.addEventListener('click',e=>{
     case 'openMy':go('my');break;
     case 'myToggle':S.myOpen=S.myOpen===v?'':v;S.ownAdding=false;render();break;
     case 'myEdit':S.returnTo='my';S.myBack=true;go(v);break;
+    case 'photoMode':S.photoMode=v;render();break;
+    case 'useToggle':{S[v]=S[v]===false;render();const nm2={useOwned:'보유 제품',useConcerns:'메이크업 고민',useFace:'얼굴 사진'}[v];toast(S[v]?`${nm2}을 추천에 다시 반영해요`:`${nm2}은 이제 추천에 쓰지 않아요`);break}
+    case 'delPhotos':Object.assign(S,{photo:null,photoFile:null,photoState:'none',faceLm:null,facePts:null,faceTraits:null,faceNote:'',photoTips:'',reportState:null});S.shelf.photo=null;S.shelf.file=null;render();toast('얼굴·화장대 사진을 지웠어요. 입력한 제품 목록은 그대로예요');break;
     case 'myRestart':{const keep={looks:S.looks||[],owned:S.owned||[]};S=Object.assign(fresh(),keep);go('s0');toast('정보를 초기화했어요 · 저장한 룩은 그대로예요');break}
     case 'stepNext':{const i=ORDER.indexOf(S.screen);if(i>=0&&i<ORDER.length-1)go(ORDER[i+1]);break}
     case 'toMy':S.returnTo=null;go('my','back');break;
@@ -2872,6 +2923,7 @@ dev.addEventListener('click',e=>{
     case 'cPlay':S.core.playing=!S.core.playing;render();break;
     case 'cSrc':S.core.src=v;render();break;
     case 'cVid':S.core.vid=+v;render();break;
+    case 'cSkipBuy':S.core.store=null;go('home','back');toast('좋아요. 만든 룩은 ‘내 룩’에 그대로 있어요');break;
     case 'cWish':toast('찜해뒀어요. 마이페이지에서 다시 볼 수 있어요');break;
     case 'cBuy':S.core.store=null;go('c6');break;
     case 'cStore':S.core.store=+v;render();break;
@@ -3201,7 +3253,7 @@ async function analyze(){
   const [pts,q]=S.photoFile?await Promise.all([detect68(photo),photoQuality(photo)]):[null,null];
   if(S.photo!==photo)return;
   if(pts)S.facePts=pts;
-  if(S.photoFile){try{r=normFace(await aiJson(FACE_PROMPT+metricsHint(),{images:[S.photoFile],tier:'default'}))}catch(e){markAi(e);if(OFF_CODES.includes(e&&e.code))aiOff=true}}
+  if(S.photoFile&&S.photoMode!=='local'){try{r=normFace(await aiJson(FACE_PROMPT+metricsHint(),{images:[S.photoFile],tier:'default'}))}catch(e){markAi(e);if(OFF_CODES.includes(e&&e.code))aiOff=true}}
   if(S.photo!==photo)return;
   if(pts){r=r&&r.found!==false?{...r,lm:lmFromPts(pts)}:{lm:lmFromPts(pts),traits:r&&r.traits||null};
     const m=faceMetrics(pts),mr=measuredReport(m);
@@ -3209,7 +3261,8 @@ async function analyze(){
     if(!r.traits){const rp=lmReport(lmFromPts(pts));r.traits={eyes:`${mr.eyeShape.replace(' 눈매','')} · 눈꼬리 ${mr.tail}`,face:mr.shape,report:rp}}
     const iss=qualityIssues(q);if(m.eW<28)iss.push('얼굴이 작게 나왔어요');if(Math.abs(m.rollDeg)>10)iss.push('고개가 기울어져 있어요');if(Math.abs(m.yaw)>.07)iss.push('정면이 아니에요');
     S.photoTips=iss.length?`${iss.join(' · ')}. 밝은 곳에서 정면으로 다시 찍으면 더 정확해요`:'';
-    if(aiDown)S.faceNote='AI 미연결 · 바를 위치와 눈매·입술·얼굴형 비율은 사진에서 직접 쟀어요. 쌍꺼풀·볼살 같은 항목은 비어 있어요';
+    if(S.photoMode==='local')S.faceNote='기기 안에서만 분석 · 바를 위치와 눈매·입술·얼굴형 비율을 기기에서 직접 쟀어요. 쌍꺼풀·볼살 같은 항목은 비어 있어요';
+    else if(aiDown)S.faceNote='AI 미연결 · 바를 위치와 눈매·입술·얼굴형 비율은 사진에서 직접 쟀어요. 쌍꺼풀·볼살 같은 항목은 비어 있어요';
   }else S.photoTips=qualityIssues(q).length?`${qualityIssues(q).join(' · ')}. 밝은 곳에서 정면으로 다시 찍으면 더 정확해요`:'';
   if(r&&r.found===false){Object.assign(S,{photo:null,photoFile:null,photoState:'none'});if(S.screen==='s4'||S.screen==='c3')render();toast('얼굴을 찾지 못했어요. 정면 사진으로 다시 올려주세요');return}
   if(!r&&S.photoFile){const lm=await detectLocal(S.photoFile,S.photoDims||{w:1,h:1});if(S.photo!==photo)return;if(lm)r={lm,traits:null}}
@@ -3221,7 +3274,7 @@ async function analyze(){
   if(S.photoFile&&r.lm!==AVG_LM&&!S.facePts)r.lm=refineLm(r.lm,S.photoDims||{w:1,h:1});
   Object.assign(S,{faceLm:r.lm,faceTraits:r.traits,photoState:'done',reportState:null});
   if(S.screen==='s4')render();
-  if(S.photoFile&&!(r.traits&&r.traits.report)&&!aiOff)fetchReport();
+  if(S.photoFile&&S.photoMode!=='local'&&!(r.traits&&r.traits.report)&&!aiOff)fetchReport();
 }
 
 /* ---- S3 conversation ---- */
@@ -3470,6 +3523,11 @@ async function analyzeShelf(){
   const sh=S.shelf;Object.assign(sh,{state:'analyzing',items:[],note:'',tips:'',step:'',hl:null,editing:null,adding:null});render();
   let items=null;
   if(!sh.file&&/^data:/.test(sh.photo||'')){try{sh.file=dataUrlBlob(sh.photo)}catch(e){}}
+  if(sh.file&&S.photoMode==='local'){
+    // nothing is sent: the person lists products themselves, with the photo beside them as a reminder
+    await wait(400);if(S.shelf!==sh)return;
+    Object.assign(sh,{items:[],state:'done',step:'',note:'기기 안에서만 분석 · 사진을 보내지 않아서 제품은 직접 추가해 주세요. 사진은 옆에서 참고용으로만 보여요',adding:'new'});if(S.screen==='shelf')render();return;
+  }
   if(sh.file){
     const q=await photoQuality(sh.file),iss=qualityIssues(q);sh.tips=iss.length?`${iss.join(' · ')}. 밝은 곳에서 라벨이 보이게 다시 찍으면 더 정확해요`:'';
     try{items=normShelf(await aiJson(SHELF_PROMPT,{images:[sh.file],tier:'default'}))}catch(e){markAi(e);if(OFF_CODES.includes(e&&e.code))aiOff=true}
