@@ -1562,8 +1562,7 @@ R.shelf=()=>{const sh=S.shelf,st=sh.state;
   <h1 class="title">화장대를 찍어주세요</h1>
   <div class="tips"><div class="tip"><span>${ic('text',24,1.6)}</span>라벨이<br>보이게</div><div class="tip"><span>${ic('sun',24,1.6)}</span>밝은 곳</div><div class="tip"><span>${ic('cards',24,1.6)}</span>여러 개<br>한 번에</div><div class="tip"><span>${ic('front',24,1.6)}</span>위에서<br>정면으로</div></div>
   <div class="shelf-photo"><div class="wrap">${vanitySVG(true)}</div></div>
-  ${photoConsent('shelf')}
-  <div class="pbtns ${S.photoMode?'':'wait'}"><button class="pbtn pri" data-act="shelfCam" ${S.photoMode?'':'disabled'}>${ic('camera',20)}사진 찍기</button><label class="pbtn" for="shelffile" tabindex="0" ${S.photoMode?'':'aria-disabled="true"'}>${ic('image',20)}앨범에서 선택</label></div>
+  <div class="pbtns"><button class="pbtn pri" data-act="shelfCam">${ic('camera',20)}사진 찍기</button><label class="pbtn" for="shelffile" tabindex="0">${ic('image',20)}앨범에서 선택</label></div>
   <input type="file" id="shelffile" accept="image/*" hidden><input type="file" id="shelfcam" accept="image/*" capture="environment" hidden>
   <div class="trust">${ic('lock',16)}<span>${photoTrust()}</span></div>`
   :`<div class="shelf-photo small" ${img?'':'hidden'}><div class="wrap">${img}${st==='analyzing'?'<div class="scanline"></div>':''}${boxes}</div></div>
@@ -1579,7 +1578,7 @@ function photoConsent(kind){
    ${PHOTO_MODES.map(([v,l,d])=>`<button class="cs-opt" role="radio" aria-checked="${S.photoMode===v}" data-act="photoMode" data-v="${v}"><span class="cs-dot"></span><span><b>${l}</b><small>${d}</small></span></button>`).join('')}
    <small class="cs-foot">${kind==='face'?'얼굴 사진':'화장대 사진'}과 분석 결과는 이 브라우저에만 저장되고, 마이페이지 ‘AI·데이터 설정’에서 언제든 바꾸거나 지울 수 있어요.</small></div>`;
 }
-const photoTrust=()=>S.photoMode==='local'?'사진이 이 기기 밖으로 나가지 않아요. 사진과 결과는 이 브라우저에만 저장되고 언제든 지울 수 있어요.'
+const photoTrust=()=>false?'사진이 이 기기 밖으로 나가지 않아요. 사진과 결과는 이 브라우저에만 저장되고 언제든 지울 수 있어요.'
   :'AI 분석을 위해 사진이 한 번 전송되고, 이 서비스는 사진을 따로 보관하지 않아요. 사진과 결과는 이 브라우저에만 저장되고 언제든 지울 수 있어요.';
 function shelfForm(x,preset){
   return `<form class="sform" data-sform="${x?x.id:'new'}"><select name="item" aria-label="제품 종류">${[...TYPES,'기타'].map(t=>`<option ${(x?x.item:preset)===t?'selected':''}>${t}</option>`).join('')}</select>
@@ -1624,8 +1623,7 @@ R.s4=()=>{
    <div class="tip"><span>${ic('front',26,1.6)}</span>정면</div><div class="tip"><span>${ic('sun',26,1.6)}</span>자연광</div>
    <div class="tip"><span>${ic('bare',26,1.6)}</span>맨얼굴 또는<br>가벼운 화장</div><div class="tip"><span>${ic('hairup',26,1.6)}</span>앞머리<br>넘기기</div></div>
    <div class="photo empty">${silhouette('silClip')}</div>
-   ${photoConsent('face')}
-   <div class="pbtns ${S.photoMode?'':'wait'}"><button class="pbtn pri" data-act="camera" ${S.photoMode?'':'disabled'}>${ic('camera',20)}사진 찍기</button><label class="pbtn" for="file" tabindex="0" ${S.photoMode?'':'aria-disabled="true"'}>${ic('image',20)}앨범에서 선택</label></div>
+   <div class="pbtns"><button class="pbtn pri" data-act="camera">${ic('camera',20)}사진 찍기</button><label class="pbtn" for="file" tabindex="0">${ic('image',20)}앨범에서 선택</label></div>
    <input type="file" id="file" accept="image/*" hidden><input type="file" id="camfile" accept="image/*" capture="user" hidden>`
   :`<div class="photo">${img}${st==='analyzing'?'<div class="scanline"></div>':overlay()}${st==='done'?`<span class="donechip">${ic('check',14,2.6)}분석 완료</span>`:''}</div>
    ${st==='analyzing'?`<p class="anal-txt" role="status">눈매·코·입술·얼굴형 위치를 찾고 있어요…</p>`:`<div class="found">${S.faceTraits?`<span>눈매 · ${esc(S.faceTraits.eyes)}</span><span>얼굴형 · ${esc(S.faceTraits.face)}</span>`:'<span>눈매</span><span>코</span><span>입술</span><span>얼굴형</span>'}</div>${st==='done'?repButton():''}${S.photoTips?`<p class="qtip">${ic('camera',14)}${esc(S.photoTips)}</p>`:''}${S.faceNote?`<p class="ai-off">${esc(S.faceNote)}</p>`:''}
@@ -1749,12 +1747,10 @@ R.my=()=>{
      c.length?`<ul class="dr-ul">${c.map(x=>`<li><em>${x.area}</em>${esc(x.text)}</li>`).join('')}</ul>`:none(S.concerns?'특별한 고민이 없다고 하셨어요':'고민을 알려주시면 해결 방법까지 넣어드려요'),'s3')}
   ${drawer('face','look','얼굴 분석',S.photoState==='done'?(fr?`${frType(fr)} · ${fr.shape}`:S.faceTraits?`${esc(S.faceTraits.eyes)} · ${esc(S.faceTraits.face)}`:'분석 완료'):'미입력',
      S.photoState==='done'?`<dl class="dr-dl">${fr?`<dt>이미지 유형</dt><dd>${frType(fr)}</dd><dt>얼굴형</dt><dd>${fr.shape}</dd><dt>눈</dt><dd>${[fr.eyeShape,fr.lid,'눈꼬리 '+fr.tail].filter(Boolean).join(' · ')}</dd><dt>입술</dt><dd>${fr.lipThick} · ${fr.lipRatio}</dd>`:`<dt>눈매</dt><dd>${esc(S.faceTraits?S.faceTraits.eyes:'-')}</dd><dt>얼굴형</dt><dd>${esc(S.faceTraits?S.faceTraits.face:'-')}</dd>`}</dl>`:none('사진을 올리면 바를 위치와 범위를 얼굴에 맞춰요'),'s4',S.photoState==='done'?'사진·리포트 보기':'사진 올리기')}
-  ${drawer('data','lock','AI·데이터 설정',`사진 ${S.photoMode==='local'?'기기 안에서만':S.photoMode==='ai'?'AI 정밀 분석':'미선택'} · 추천 반영 ${[S.useOwned!==false,S.useConcerns!==false,S.useFace!==false].filter(Boolean).length}/3`,
-     `<div class="ds-sec"><h5>사진 분석 방식</h5><div class="ds-seg" role="radiogroup">${PHOTO_MODES.map(([v,l])=>`<button role="radio" aria-checked="${S.photoMode===v}" data-act="photoMode" data-v="${v}">${l}</button>`).join('')}</div>
-      <small>${S.photoMode==='local'?'다음에 올리는 사진부터 기기 안에서만 분석해요. 화장대 제품은 직접 입력해요':'다음에 올리는 사진부터 AI로 정밀 분석해요. 사진은 분석에만 쓰고 따로 보관하지 않아요'}</small></div>
-     <div class="ds-sec"><h5>추천에 반영할 정보</h5>
+  ${drawer('data','lock','AI·데이터 설정',`추천 반영 ${[S.useOwned!==false,S.useConcerns!==false,S.useFace!==false].filter(Boolean).length}/3`,
+     `<div class="ds-sec"><h5>추천에 반영할 정보</h5>
       ${[['useOwned','보유 제품','끄면 가진 제품 대신 일반 제품 기준으로 단계를 짜요'],['useConcerns','메이크업 고민','끄면 고민 반영 문구와 관련 추천이 빠져요'],['useFace','얼굴 사진','끄면 내 사진 대신 그림 가이드로 바를 위치를 보여줘요']].map(([k,l,d])=>`<button class="ds-tg" role="switch" aria-checked="${S[k]!==false}" data-act="useToggle" data-v="${k}"><span><b>${l}</b><small>${d}</small></span><i></i></button>`).join('')}</div>
-     <div class="ds-sec"><h5>저장 위치</h5><small>입력한 정보, 사진, 분석 결과, 저장한 룩은 모두 이 브라우저에만 저장돼요. AI에는 검색어·고민 문장과, AI 정밀 분석을 고른 경우의 사진만 분석할 때 보내요. 광고나 제휴 목적으로 쓰지 않아요.</small>
+     <div class="ds-sec"><h5>저장 위치</h5><small>입력한 정보, 사진, 분석 결과, 저장한 룩은 모두 이 브라우저에만 저장돼요. AI에는 분석할 때 검색어·고민 문장·올린 사진만 보내요. 광고나 제휴 목적으로 쓰지 않아요.</small>
       <button class="dr-add" data-act="delPhotos" ${S.photo||S.shelf.photo?'':'disabled'}>${ic('trash',14)}얼굴·화장대 사진만 지우기</button></div>`,null)}
   </div>
   <button class="my-reedit" data-act="myRestart"><span class="dr-ic">${ic('refresh',18)}</span><span class="dr-t"><b>내 정보 초기화하기</b><small>입력한 정보를 지우고 첫 화면부터 다시 시작해요</small></span>${ic('chevR',16,2)}</button>
@@ -3578,6 +3574,7 @@ function loadSaved(){
     if(s.photoState==='analyzing'||(s.photoState==='done'&&!s.photo))s.photoState='none';
     if(s.shelf&&s.shelf.state==='analyzing')s.shelf.state=s.shelf.items.length?'done':'none';
     if(s.core&&!s.core.ready)s.core.ready=true;
+    s.photoMode=null; // the on-device-only choice was removed; older saves may still hold it
     // older saves held placeholder names ("○○ 블러 틴트"): swap in the example's real brand names
     if(s.shelf&&s.shelf.items)s.shelf.items.forEach(x=>{if(/^○○/.test(x.name||'')){const d=SHELF_DEMO.find(y=>y.item===x.item);if(d){x.name=d.name;if(x.shade&&/계열|호/.test(x.shade)&&d.shade)x.shade=d.shade}}});
     Object.assign(s,{reportState:null,repOpen:false,camera:false,camLive:false,listening:false,popup:null,preview:false,editing:null,adding:false});
