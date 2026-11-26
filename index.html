@@ -1318,6 +1318,7 @@ function shootLive(){
 }
 function go(id,dir='fwd'){
   if(id==='my'||id==='home')S.myBack=false;
+  if(id==='search')S.query=''; // every visit to search starts empty, also coming back from a product
   clearTimers();S.repOpen=false;stopCamera();S.listening=false;S.camera=false;S.camLive=false;
   S.screen=id;anim=dir;render();
   if(id==='s3')enterS3();
